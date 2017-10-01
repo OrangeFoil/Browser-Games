@@ -5,61 +5,70 @@ window.onload=function() {
 	setInterval(game,1000/60);
 }
 
-ballSpeed = -5;
-ballSize = 12;
-ballPosX = 640 / 2;
-ballPosY = 480 / 2;
-ballVelocityX = 0;
-ballVelocityY = ballSpeed;
+const ball = {
+    speed: -5,
+    size: 12,
+    pos: {x: 640 / 2, y: 480 / 2},
+    velocity: {x: 0, y: -5 },
+};
 
-playerPosX = 160;
-playerPosY = 480-32;
-playerWidth = 120;
-playerHeight = 32;
+const player = {
+    pos: { x: 160, y: 480-32},
+    width: 120,
+    height: 32,
+};
 
-blocks = [];
-for (i = 0; i < 6; i++) {
-    for (j = 0; j < 4; j++) {
-        blocks.push([96+i*80, 96+j*24, 64, 16, true]);
-    }
+function Block(x, y, width, height) {
+    this.pos = { x: x, y: y};
+    this.width = width;
+    this.height = height;
+    this.visibible = true;
 }
 
-score = 0;
+function level1() {
+    const blocks = [];
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 4; j++) {
+            blocks.push(new Block(96+i*80, 96+j*24, 64, 16, true));
+        }
+    }
+    return blocks;
+}
 
 function game() {
     // update ball position
-    if (ballPosY-ballSize/2 > canvas.height) {
+    if (ball.pos.y-ball.size/2 > canvas.height) {
         // player missed the ball
-        ballPosX = canvas.width / 2 - ballSize / 2;
-        ballPosY = canvas.height / 2 - ballSize / 2;
-        ballVelocityX = 0;
-        ballVelocityY = ballSpeed;
-    } else if (ballPosY-ballSize/2 <= 0) {
+        ball.pos.x = canvas.width / 2 - ball.size / 2;
+        ball.pos.y = canvas.height / 2 - ball.size / 2;
+        ball.velocity.x = 0;
+        ball.velocity.y = ball.speed;
+    } else if (ball.pos.y-ball.size/2 <= 0) {
         // ball touched ceiling
-        ballVelocityY = -ballVelocityY;
-    } else if (ballPosX-ballSize/2 <= 0 || ballPosX+ballSize/2 >= canvas.width) {
+        ball.velocity.y = -ball.velocity.y;
+    } else if (ball.pos.x-ball.size/2 <= 0 || ball.pos.x+ball.size/2 >= canvas.width) {
         // ball touched left or right wall
-        ballVelocityX = -ballVelocityX;
+        ball.velocity.x = -ball.velocity.x;
     }
-    ballPosX += ballVelocityX;
-    ballPosY += ballVelocityY;
+    ball.pos.x += ball.velocity.x;
+    ball.pos.y += ball.velocity.y;
 
     // detect ball collision with player
-    if (ballPosX+ballSize/2 >= playerPosX-playerWidth/2 && ballPosX-ballSize/2 <= playerPosX+playerWidth/2
-    && ballPosY-ballSize/2 >= playerPosY-playerHeight/2 && ballPosY+ballSize/2 <= playerPosY+playerHeight) {
-        ballVelocityX = (ballPosX - playerPosX) / 10;
-        ballVelocityY = -ballVelocityY;
+    if (ball.pos.x+ball.size/2 >= player.pos.x-player.width/2 && ball.pos.x-ball.size/2 <= player.pos.x+player.width/2
+    && ball.pos.y-ball.size/2 >= player.pos.y-player.height/2 && ball.pos.y+ball.size/2 <= player.pos.y+player.height) {
+        ball.velocity.x = (ball.pos.x - player.pos.x) / 10;
+        ball.velocity.y = -ball.velocity.y;
     }
 
     // detect ball collision with blocks
     for (i = 0; i < blocks.length; i++) {
-        if (blocks[i][4]
-        && ballPosX-ballSize/2 < blocks[i][0]+blocks[i][2] && ballPosX+ballSize/2 > blocks[i][0]
-        && ballPosY-ballSize/2 < blocks[i][1]+blocks[i][3] && ballPosY+ballSize/2 > blocks[i][1]) {
-            blocks[i][4] = false;
+        if (blocks[i].visibible
+        && ball.pos.x-ball.size/2 < blocks[i].pos.x+blocks[i].width && ball.pos.x+ball.size/2 > blocks[i].pos.x
+        && ball.pos.y-ball.size/2 < blocks[i].pos.y+blocks[i].height && ball.pos.y+ball.size/2 > blocks[i].pos.y) {
+            blocks[i].visibible = false;
             score++;
-            ballVelocityX = -ballVelocityX;
-            ballVelocityY = -ballVelocityY;
+            ball.velocity.x = -ball.velocity.x;
+            ball.velocity.y = -ball.velocity.y;
         }
     }
     
@@ -69,17 +78,17 @@ function game() {
 
 	// draw ball
     context.fillStyle = "white";
-    context.fillRect(ballPosX-ballSize/2, ballPosY-ballSize/2, ballSize, ballSize);
+    context.fillRect(ball.pos.x-ball.size/2, ball.pos.y-ball.size/2, ball.size, ball.size);
 
     // draw player
 	context.fillStyle = "red";
-    context.fillRect(playerPosX-playerWidth/2, playerPosY, playerWidth, 16);
+    context.fillRect(player.pos.x-player.width/2, player.pos.y, player.width, 16);
 
     // draw blocks
     context.fillStyle = "blue";
     for (i = 0; i < blocks.length; i++) {
-        if (!blocks[i][4]) continue;
-        context.fillRect(blocks[i][0], blocks[i][1], blocks[i][2], blocks[i][3]);
+        if (!blocks[i].visibible) continue;
+        context.fillRect(blocks[i].pos.x, blocks[i].pos.y, blocks[i].width, blocks[i].height);
     }
 
     // draw score
@@ -88,19 +97,23 @@ function game() {
     context.fillText("Score: " + score, 10, 20);
 
     // AI
-    /*if (playerPosX-ballPosX < -20) {
-        playerPosX += 20;
-    } else if (playerPosX-ballPosX > 20) {
-        playerPosX -= 20;
+    /*if (player.pos.x-ball.pos.x < -20) {
+        player.pos.x += 20;
+    } else if (player.pos.x-ball.pos.x > 20) {
+        player.pos.x -= 20;
     }*/
 }
 function keyPush(evt) {
 	switch(evt.keyCode) {
 		case 37:
-            playerPosX -= 20;
+            player.pos.x -= 20;
 			break;
 		case 39:
-            playerPosX += 20;
+            player.pos.x += 20;
 			break;
 	}
 }
+
+
+var score = 0;
+var blocks = level1();
