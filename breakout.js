@@ -16,13 +16,15 @@ const player = {
     pos: { x: 160, y: 480-32},
     width: 120,
     height: 32,
+    speed: 20,
+    moveLeft: function() { this.pos.x -= this.speed; },
+    moveRight: function() { this.pos.x += this.speed; },
 };
 
 function Block(x, y, width, height) {
     this.pos = { x: x, y: y};
     this.width = width;
     this.height = height;
-    this.visibible = true;
 }
 
 function level1() {
@@ -61,16 +63,16 @@ function game() {
     }
 
     // detect ball collision with blocks
-    for (i = 0; i < blocks.length; i++) {
-        if (blocks[i].visibible
-        && ball.pos.x-ball.size/2 < blocks[i].pos.x+blocks[i].width && ball.pos.x+ball.size/2 > blocks[i].pos.x
-        && ball.pos.y-ball.size/2 < blocks[i].pos.y+blocks[i].height && ball.pos.y+ball.size/2 > blocks[i].pos.y) {
-            blocks[i].visibible = false;
-            score++;
-            ball.velocity.x = -ball.velocity.x;
-            ball.velocity.y = -ball.velocity.y;
+    blocks.forEach(function(block) {
+        if (ball.pos.x-ball.size/2 < block.pos.x+block.width && ball.pos.x+ball.size/2 > block.pos.x
+            && ball.pos.y-ball.size/2 < block.pos.y+block.height && ball.pos.y+ball.size/2 > block.pos.y) {
+                var i = blocks.indexOf(block);
+                blocks.splice(i, 1);
+                score++;
+                ball.velocity.x = -ball.velocity.x;
+                ball.velocity.y = -ball.velocity.y;
         }
-    }
+    });
     
     // draw background
     context.fillStyle = "black";
@@ -86,10 +88,9 @@ function game() {
 
     // draw blocks
     context.fillStyle = "blue";
-    for (i = 0; i < blocks.length; i++) {
-        if (!blocks[i].visibible) continue;
-        context.fillRect(blocks[i].pos.x, blocks[i].pos.y, blocks[i].width, blocks[i].height);
-    }
+    blocks.forEach(function(block) {
+        context.fillRect(block.pos.x, block.pos.y, block.width, block.height);
+    });
 
     // draw score
     context.fillStyle = "white";
@@ -106,10 +107,10 @@ function game() {
 function keyPush(evt) {
 	switch(evt.keyCode) {
 		case 37:
-            player.pos.x -= 20;
+            player.moveLeft();
 			break;
 		case 39:
-            player.pos.x += 20;
+            player.moveRight();
 			break;
 	}
 }
