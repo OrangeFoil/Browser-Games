@@ -1,6 +1,14 @@
 const canvas = document.getElementById("gamecanvas");
 const context = canvas.getContext("2d");
-document.addEventListener("keydown", keyPush);
+
+var keys = [];
+document.body.addEventListener("keydown", function (e) {
+    keys[e.keyCode] = true;
+});
+document.body.addEventListener("keyup", function (e) {
+    keys[e.keyCode] = false;
+});
+
 lastTime = (new Date()).getTime();
 currentTime = 0;
 deltaTime = 0;
@@ -78,7 +86,7 @@ const player = {
         this.pos.x = canvas.width / 2 - this.width / 2;
         this.pos.y = canvas.height - 32;
         this.velocity = 0;
-        this.speed = 12;
+        this.speed = 2;
         this.friction = 0.9;
     },
 };
@@ -145,6 +153,14 @@ function generateLevel(level) {
 }
 
 function loop() {
+    if (keys[37] && !game.demoMode) player.moveLeft();
+    else if (keys[39] && !game.demoMode) player.moveRight();
+    if (keys[13] && game.demoMode) {
+        game.reset();
+        game.demoMode = false;
+        ball.reset();
+        player.reset();
+    }
 
     currentTime = (new Date()).getTime();
     deltaTime = (currentTime - lastTime) / 1000;
@@ -233,23 +249,6 @@ function loop() {
         context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
     }
     window.requestAnimationFrame(loop);
-}
-
-function keyPush(evt) {
-	switch(evt.keyCode) {
-		case 37:
-            if (!game.demoMode) player.moveLeft();
-			break;
-		case 39:
-            if (!game.demoMode) player.moveRight();
-            break;
-        case 13:
-            game.reset();
-            game.demoMode = false;
-            ball.reset();
-            player.reset();
-            break;
-	}
 }
 
 game.reset();
