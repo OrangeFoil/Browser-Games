@@ -30,27 +30,6 @@ const game = {
     },
 }
 
-const ball = {
-    pos: {x: null, y: null},
-    velocity: {x: null, y: null },
-    width: null,
-    height: null,
-    speed: null,
-    draw: function() {
-        context.fillStyle = "#F8F8F2";
-        context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-    },
-    reset: function() {
-        this.pos.x = canvas.width / 2;
-        this.pos.y = canvas.height - 64;
-        this.speed = -300;
-        this.velocity.x = (Math.random() + 0.5) * Math.pow(-1, Math.floor(Math.random() * 2)) * 60;
-        if (game.demoMode) this.velocity.x += 2;
-        this.velocity.y = this.speed;
-        this.width = this.height = 12;
-    },
-};
-
 class Rectangle {
     constructor(x, y, width, height, color="#FFF") {
         this.pos = { x: x, y: y};
@@ -110,6 +89,16 @@ class Player extends Rectangle {
             this.pos.x = canvas.width-this.width/2;
             this.velocity = 0;
         }
+    }
+}
+
+class Ball extends Rectangle {
+    constructor() {
+        const size = 12;
+        super(canvas.width/2, canvas.height-64, size, size, "#F8F8F2");
+        this.speed = -300;
+        this.velocity = {x: (Math.random() + 0.5) * Math.pow(-1, Math.floor(Math.random() * 2)) * 60,
+                         y: this.speed};
     }
 }
 
@@ -203,7 +192,7 @@ function loop() {
     if (keys[13] && game.demoMode) {
         game.reset();
         game.demoMode = false;
-        ball.reset();
+        ball = new Ball();
         player = new Player();
     }
 
@@ -216,7 +205,7 @@ function loop() {
     if (ball.pos.y-ball.height/2 > canvas.height) {
         // player missed the ball
         soundLifeLost.play();
-        ball.reset();
+        ball = new Ball();
         player = new Player();
         game.multiplier = 1;
         if (--game.lives == 0) game.reset();
@@ -264,7 +253,7 @@ function loop() {
     // check if level cleared
     if (game.blocks.length == 0) {
         game.blocks = generateLevel(++game.level);
-        ball.reset();
+        ball = new Ball();
         player.reset();
     }
     
@@ -308,7 +297,7 @@ function loop() {
 }
 
 game.reset();
-ball.reset();
+var ball = new Ball();
 var player = new Player();
 soundPlayerHit = new sound("sounds/playerhit.wav");
 soundBlockHit = new sound("sounds/blockhit.mp3");
