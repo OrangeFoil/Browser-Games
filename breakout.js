@@ -54,6 +54,26 @@ class Rectangle {
         return this.pos.y + this.height;
     }
 
+    collisionDetection(object) {
+        if (this.left < object.right &&
+            this.right > object.left &&
+            this.top < object.bottom &&
+            this.bottom > object.top) {
+            return true;
+        }
+        return false;
+    }
+
+    collisionSide(object) {
+        // top/bottom or left/right
+        if (this.right >= object.left && ball.left <= object.right) {
+            return "top/bottom";
+        } else if (ball.top >= object.bottom && object.bottom <= object.top) {
+            return "left/right";
+        }
+        return "";
+    }
+
     draw() {
         context.fillStyle = this.color;
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
@@ -112,27 +132,6 @@ class Block extends Rectangle {
         this.health -= d;
         return this.health;
     }
-}
-
-function collisionDetection(a, b) {
-    if (a.pos.x < b.pos.x + b.width &&
-        a.pos.x + a.width > b.pos.x &&
-        a.pos.y < b.pos.y + b.height &&
-        a.height + a.pos.y > b.pos.y) {
-        return true;
-    }
-    return false;
-}
-
-// returns side on which the ball made contact
-function collisionSide(ball, object) {
-    // top/bottom or left/right
-    if (ball.pos.x+ball.width >= object.pos.x && ball.pos.x <= object.pos.x+object.width) {
-        return "top/bottom";
-    } else if (ball.pos.y >= object.pos.y-object.height && object.pos.y+object.height <= object.pos.y) {
-        return "left/right";
-    }
-    return "";
 }
 
 function generateLevel(level) {
@@ -222,7 +221,7 @@ function loop() {
     ball.pos.y += ball.velocity.y * deltaTime;
 
     // detect ball collision with player
-    if (collisionDetection(ball, player)) {
+    if (ball.collisionDetection(player)) {
         soundPlayerHit.play();
         ball.velocity.x = ((ball.pos.x+ball.width/2) - (player.pos.x+player.width/2)) * 6;
         ball.velocity.y = -ball.velocity.y;
@@ -231,7 +230,7 @@ function loop() {
 
     // detect ball collision with blocks
     game.blocks.forEach(function(block) {
-        if (collisionDetection(ball, block)) {
+        if (ball.collisionDetection(block)) {
             soundBlockHit.play();
             game.score += game.multiplier++;
             
@@ -241,7 +240,8 @@ function loop() {
                 game.blocks.splice(i, 1);
             }
 
-            var side = collisionSide(ball, block);
+            var side = ball.collisionSide(block);
+            console.log(side);
             if (side == "top/bottom") {
                 ball.velocity.y = -ball.velocity.y;
             } else {
@@ -254,7 +254,7 @@ function loop() {
     if (game.blocks.length == 0) {
         game.blocks = generateLevel(++game.level);
         ball = new Ball();
-        player.reset();
+        player = new Player();
     }
     
     // draw background
