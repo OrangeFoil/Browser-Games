@@ -114,20 +114,15 @@ function collisionDetection(a, b) {
 
 // returns side on which the ball made contact
 function collisionSide(ball, object) {
-    // distance between upper side of ball and lower side of object
-    const up = Math.abs(ball.pos.y - object.pos.y+object.height);
-    // distance between lower side of ball and upper side of object
-    const down = Math.abs(ball.pos.y+ball.height - object.pos.y);
-    // distance between left side of ball and right side of object
-    const left = Math.abs(ball.pos.x - object.pos.x+object.width);
-    // distance between right side of ball and left side of object
-    const right = Math.abs(ball.pos.x+ball.width - object.pos.x);
-
-    const min = Math.min(up, down, left, right);
-    if (min == up) return "up";
-    if (min == down) return "down";
-    if (min == left) return "left";
-    return "right";
+    // top/bottom or left/right
+    if (ball.pos.x+ball.width >= object.pos.x && ball.pos.x <= object.pos.x+object.width) {
+        console.log("top/bottom");
+        return "top/bottom";
+    } else if (ball.pos.y >= object.pos.y-object.height && object.pos.y+object.height <= object.pos.y) {
+        console.log("left/right");
+        return "left/right";
+    }
+    return "";
 }
 
 function generateLevel(level) {
@@ -219,7 +214,7 @@ function loop() {
             game.score += game.multiplier++;
 
             var side = collisionSide(ball, block);
-            if (side == "up" || side == "down") {
+            if (side == "top/bottom") {
                 ball.velocity.y = -ball.velocity.y;
             } else {
                 ball.velocity.x = -ball.velocity.x;
