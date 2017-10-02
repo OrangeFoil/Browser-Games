@@ -152,6 +152,21 @@ function generateLevel(level) {
     return blocks;
 }
 
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
+}
+
 function loop() {
     if (keys[37] && !game.demoMode) player.moveLeft();
     else if (keys[39] && !game.demoMode) player.moveRight();
@@ -170,15 +185,18 @@ function loop() {
 
     if (ball.pos.y-ball.height/2 > canvas.height) {
         // player missed the ball
+        soundLifeLost.play();
         ball.reset();
         player.reset();
         game.multiplier = 1;
         if (--game.lives == 0) game.reset();
     } else if (ball.pos.y-ball.height/2 <= 0) {
         // ball touched ceiling
+        soundWallHit.play();
         ball.velocity.y = -ball.velocity.y;
     } else if (ball.pos.x-ball.width/2 <= 0 || ball.pos.x+ball.width/2 >= canvas.width) {
         // ball touched left or right wall
+        soundWallHit.play();
         ball.velocity.x = -ball.velocity.x;
     }
     ball.pos.x += ball.velocity.x * deltaTime;
@@ -186,6 +204,7 @@ function loop() {
 
     // detect ball collision with player
     if (collisionDetection(ball, player)) {
+        soundPlayerHit.play();
         ball.velocity.x = ((ball.pos.x+ball.width/2) - (player.pos.x+player.width/2)) * 6;
         ball.velocity.y = -ball.velocity.y;
         game.multiplier = 1;
@@ -194,6 +213,7 @@ function loop() {
     // detect ball collision with blocks
     game.blocks.forEach(function(block) {
         if (collisionDetection(ball, block)) {
+            soundBlockHit.play();
             var i = game.blocks.indexOf(block);
             game.blocks.splice(i, 1);
             game.score += game.multiplier++;
@@ -256,4 +276,8 @@ function loop() {
 game.reset();
 ball.reset();
 player.reset();
+soundPlayerHit = new sound("sounds/playerhit.wav");
+soundBlockHit = new sound("sounds/blockhit.mp3");
+soundWallHit = new sound("sounds/wallhit.wav");
+soundLifeLost = new sound("sounds/lifelost.mp3");
 loop();
