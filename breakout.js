@@ -14,7 +14,7 @@ const game = {
         this.score = 0;
         this.lives = 3;
         this.level = 1;
-        this.blocks = level1();
+        this.blocks = generateLevel(this.level);
     },
 }
 
@@ -69,12 +69,23 @@ function Block(x, y, width, height, color="#FFE792") {
     };
 }
 
-function level1() {
+function generateLevel(level) {
     const blocks = [];
     const colors = ["#F92672", "#66D9EF", "#A6E22E", "#FD971F", "#AE81FF", "#FFE792", "#FFE792"];
-    for (row = 0; row < 7; row++) {
-        for (col = 0; col < 8; col++) {
-            blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
+    if (level == 1) {
+        for (row = 0; row < 7; row++) {
+            for (col = 0; col < 8; col++) {
+                blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
+            }
+        }
+    }
+    else {
+        // simple random level
+        for (row = 0; row < 7; row++) {
+            for (col = 0; col < 8; col++) {
+                if (Math.random() >= 0.5) continue;
+                blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
+            }
         }
     }
     return blocks;
@@ -115,6 +126,13 @@ function loop() {
                 ball.velocity.y = -ball.velocity.y;
         }
     });
+
+    // check if level cleared
+    if (game.blocks.length == 0) {
+        game.blocks = generateLevel(++game.level);
+        ball.reset();
+        player.reset();
+    }
     
     // draw background
     context.fillStyle = "#272822";
@@ -127,13 +145,16 @@ function loop() {
         block.draw();
     });
 
-    // draw score and lives
-    context.fillStyle = "white";
+    // draw text
+    context.fillStyle = "rgba(255, 255, 255, 0.75)";
     context.font = "20px Georgia";
     context.textAlign = "left";
     context.fillText("Score: " + game.score, 10, 20);
+    context.textAlign = "center";
+    context.fillText("Level: " + game.level, canvas.width/2, 20);
     context.textAlign = "right";
     context.fillText("Lives: " + game.lives, canvas.width-10, 20);
+    context.globalAlpha = 1;
 
     if (game.demoMode) {
         // AI
