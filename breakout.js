@@ -9,25 +9,186 @@ document.body.addEventListener("keyup", function (e) {
     keys[e.keyCode] = false;
 });
 
-lastTime = (new Date()).getTime();
-currentTime = 0;
-deltaTime = 0;
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
+}
 
-const game = {
-    demoMode: null,
-    score: null,
-    multiplier: null,
-    lives: null,
-    level: null,
-    blocks: null,
-    reset: function() {
-        this.demoMode = true;
+class Game {
+    constructor(canvas) {
+        this.canvas = canvas;
+
+        this.sound = {};
+        this.initializeSounds();
+        
+        this.startAttractMode();
+
+        let lastTime = null;
+        this._frameCallback = (timestamp) => {
+            if (lastTime !== null) {
+                const diff = timestamp - lastTime;
+                this.update(diff / 1000);
+                this.render();
+            }
+            lastTime = timestamp;
+            requestAnimationFrame(this._frameCallback);
+        };
+        requestAnimationFrame(this._frameCallback);
+    }
+
+    startAttractMode() {
+        this.attractMode = true;
+        this.score = 0;
+        this.multiplier = 1;
+        this.lives = 1;
+        this.level = Math.floor(Math.random() * 2) + 1;
+
+        this.ball = new Ball();
+        this.player = new Player();
+        this.blocks = generateLevel(this.level);
+    }
+
+    startGame() {
+        this.attractMode = true;
         this.score = 0;
         this.multiplier = 1;
         this.lives = 3;
         this.level = 1;
+
+        this.ball = new Ball();
+        this.player = new Player();
         this.blocks = generateLevel(this.level);
-    },
+    }
+
+    initializeSounds() {
+        this.sound["PlayerHit"] = new sound("sounds/playerhit.wav");
+        this.sound["BlockHit"] = new sound("sounds/blockhit.mp3");
+        this.sound["WallHit"] = new sound("sounds/wallhit.wav");
+        this.sound["LifeLost"] = new sound("sounds/lifelost.mp3");
+    }
+
+    update(deltaTime) {
+        if (keys[37] && !this.attractMode) this.player.moveLeft();
+        else if (keys[39] && !this.attractMode) this.player.moveRight();
+        if (keys[13] && this.attractMode) {
+            this.startGame();
+            this.attractMode = false;
+            this.ball = new Ball();
+            this.player = new Player();
+        }
+
+        this.player.updatePosition();
+
+        if (this.ball.pos.y-this.ball.height/2 > this.canvas.height) {
+            // player missed the ball
+            this.sound["LifeLost"].play();
+            this.ball = new Ball();
+            this.player = new Player();
+            this.multiplier = 1;
+            if (--this.lives == 0) this.startAttractMode(); // fix me
+        } else if (this.ball.pos.y-this.ball.height/2 <= 0) {
+            // ball touched ceiling
+            this.sound["WallHit"].play();
+            this.ball.velocity.y = -this.ball.velocity.y;
+        } else if (this.ball.pos.x-this.ball.width/2 <= 0 || this.ball.pos.x+this.ball.width/2 >= this.canvas.width) {
+            // ball touched left or right wall
+            this.sound["WallHit"].play();
+            this.ball.velocity.x = -this.ball.velocity.x;
+        }
+        this.ball.pos.x += this.ball.velocity.x * deltaTime;
+        this.ball.pos.y += this.ball.velocity.y * deltaTime;
+
+        // detect ball collision with player
+        if (this.ball.collisionDetection(this.player)) {
+            this.sound["PlayerHit"].play();
+            this.ball.velocity.x = ((this.ball.pos.x+this.ball.width/2) - (this.player.pos.x+this.player.width/2)) * 6;
+            this.ball.velocity.y = -this.ball.velocity.y;
+            this.multiplier = 1;
+        }
+
+        // detect ball collision with blocks
+        this.blocks.forEach((block)=> {
+            if (this.ball.collisionDetection(block)) {
+                this.sound["BlockHit"].play();
+                this.score += this.multiplier++;
+                
+                var health = block.damage();
+                if (health <= 0) {
+                    var i = this.blocks.indexOf(block);
+                    this.blocks.splice(i, 1);
+                }
+
+                var side = this.ball.collisionSide(block);
+                if (side == "top/bottom") {
+                    this.ball.velocity.y = -this.ball.velocity.y;
+                } else {
+                    this.ball.velocity.x = -this.ball.velocity.x;
+                }
+            }
+        });
+
+        // check if level cleared
+        if (this.blocks.length == 0) {
+            if (this.attractMode) {
+                // restart attract mode
+                this.startAttractMode();
+            } else {
+                // move to next level
+                this.blocks = generateLevel(++this.level);
+                this.ball = new Ball();
+                this.player = new Player();
+            }
+        }
+    }
+
+    render() {
+        // draw background
+        context.fillStyle = "#272822";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // draw objects
+        this.ball.draw();
+        this.player.draw();
+        this.blocks.forEach(function(block) {
+            block.draw();
+        });
+
+        // draw text
+        context.fillStyle = "rgba(255, 255, 255, 0.75)";
+        context.font = "20px Georgia";
+        context.textAlign = "left";
+        context.fillText("Score: " + this.score, 10, 20);
+        context.textAlign = "center";
+        context.fillText("Level: " + this.level, canvas.width/2, 20);
+        context.textAlign = "right";
+        context.fillText("Lives: " + this.lives, canvas.width-10, 20);
+        context.globalAlpha = 1;
+
+        if (this.attractMode) {
+            // AI
+            if (this.ball.pos.y > this.canvas.height*0.3 && this.ball.pos.y < this.canvas.height*0.9) {
+                if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) < 50) {
+                    this.player.moveRight();
+                } else if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) > -50) {
+                    this.player.moveLeft();
+                }
+            }     
+
+            context.fillStyle = "white";
+            context.textAlign = "center";
+            context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
+        }
+    }
 }
 
 class Rectangle {
@@ -66,9 +227,9 @@ class Rectangle {
 
     collisionSide(object) {
         // top/bottom or left/right
-        if (this.right >= object.left && ball.left <= object.right) {
+        if (this.right >= object.left && this.left <= object.right) {
             return "top/bottom";
-        } else if (ball.top >= object.bottom && object.bottom <= object.top) {
+        } else if (this.top >= object.bottom && this.bottom <= object.top) {
             return "left/right";
         }
         return "";
@@ -170,137 +331,4 @@ function generateLevel(level) {
     return blocks;
 }
 
-function sound(src) {
-    this.sound = document.createElement("audio");
-    this.sound.src = src;
-    this.sound.setAttribute("preload", "auto");
-    this.sound.setAttribute("controls", "none");
-    this.sound.style.display = "none";
-    document.body.appendChild(this.sound);
-    this.play = function(){
-        this.sound.play();
-    }
-    this.stop = function(){
-        this.sound.pause();
-    }
-}
-
-function loop() {
-    if (keys[37] && !game.demoMode) player.moveLeft();
-    else if (keys[39] && !game.demoMode) player.moveRight();
-    if (keys[13] && game.demoMode) {
-        game.reset();
-        game.demoMode = false;
-        ball = new Ball();
-        player = new Player();
-    }
-
-    currentTime = (new Date()).getTime();
-    deltaTime = (currentTime - lastTime) / 1000;
-    lastTime = currentTime;
-
-    player.updatePosition();
-
-    if (ball.pos.y-ball.height/2 > canvas.height) {
-        // player missed the ball
-        soundLifeLost.play();
-        ball = new Ball();
-        player = new Player();
-        game.multiplier = 1;
-        if (--game.lives == 0) game.reset();
-    } else if (ball.pos.y-ball.height/2 <= 0) {
-        // ball touched ceiling
-        soundWallHit.play();
-        ball.velocity.y = -ball.velocity.y;
-    } else if (ball.pos.x-ball.width/2 <= 0 || ball.pos.x+ball.width/2 >= canvas.width) {
-        // ball touched left or right wall
-        soundWallHit.play();
-        ball.velocity.x = -ball.velocity.x;
-    }
-    ball.pos.x += ball.velocity.x * deltaTime;
-    ball.pos.y += ball.velocity.y * deltaTime;
-
-    // detect ball collision with player
-    if (ball.collisionDetection(player)) {
-        soundPlayerHit.play();
-        ball.velocity.x = ((ball.pos.x+ball.width/2) - (player.pos.x+player.width/2)) * 6;
-        ball.velocity.y = -ball.velocity.y;
-        game.multiplier = 1;
-    }
-
-    // detect ball collision with blocks
-    game.blocks.forEach(function(block) {
-        if (ball.collisionDetection(block)) {
-            soundBlockHit.play();
-            game.score += game.multiplier++;
-            
-            var health = block.damage();
-            if (health <= 0) {
-                var i = game.blocks.indexOf(block);
-                game.blocks.splice(i, 1);
-            }
-
-            var side = ball.collisionSide(block);
-            console.log(side);
-            if (side == "top/bottom") {
-                ball.velocity.y = -ball.velocity.y;
-            } else {
-                ball.velocity.x = -ball.velocity.x;
-            }
-        }
-    });
-
-    // check if level cleared
-    if (game.blocks.length == 0) {
-        game.blocks = generateLevel(++game.level);
-        ball = new Ball();
-        player = new Player();
-    }
-    
-    // draw background
-    context.fillStyle = "#272822";
-	context.fillRect(0, 0, canvas.width, canvas.height);
-
-    // draw objects
-    ball.draw();
-    player.draw();
-    game.blocks.forEach(function(block) {
-        block.draw();
-    });
-
-    // draw text
-    context.fillStyle = "rgba(255, 255, 255, 0.75)";
-    context.font = "20px Georgia";
-    context.textAlign = "left";
-    context.fillText("Score: " + game.score, 10, 20);
-    context.textAlign = "center";
-    context.fillText("Level: " + game.level, canvas.width/2, 20);
-    context.textAlign = "right";
-    context.fillText("Lives: " + game.lives, canvas.width-10, 20);
-    context.globalAlpha = 1;
-
-    if (game.demoMode) {
-        // AI
-        if (ball.pos.y > canvas.height*0.3 && ball.pos.y < canvas.height*0.9) {
-            if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) < 50) {
-                player.moveRight();
-            } else if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) > -50) {
-                player.moveLeft();
-            }
-        }     
-
-        context.fillStyle = "white";
-        context.textAlign = "center";
-        context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
-    }
-    window.requestAnimationFrame(loop);
-}
-
-game.reset();
-var ball = new Ball();
-var player = new Player();
-soundPlayerHit = new sound("sounds/playerhit.wav");
-soundBlockHit = new sound("sounds/blockhit.mp3");
-soundWallHit = new sound("sounds/wallhit.wav");
-soundLifeLost = new sound("sounds/lifelost.mp3");
-loop();
+var game = new Game(canvas);
