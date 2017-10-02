@@ -91,15 +91,30 @@ const player = {
     },
 };
 
-function Block(x, y, width, height, color="#FFE792") {
-    this.pos = { x: x, y: y};
-    this.width = width;
-    this.height = height;
-    this.color = color;
-    this.draw = function() {
+class Rectangle {
+    constructor(x, y, width, height, color="#FFF") {
+        this.pos = { x: x, y: y};
+        this.width = width;
+        this.height = height;
+        this.color = color;
+    }
+
+    draw() {
         context.fillStyle = this.color;
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-    };
+    }
+}
+
+class Block extends Rectangle {
+    constructor(x, y, width, height, color="#FFE792", health=1) {
+        super(x, y, width, height, color);
+        this.health = health;
+    }
+
+    damage(d=1) {
+        this.health -= d;
+        return this.health;
+    }
 }
 
 function collisionDetection(a, b) {
@@ -116,10 +131,8 @@ function collisionDetection(a, b) {
 function collisionSide(ball, object) {
     // top/bottom or left/right
     if (ball.pos.x+ball.width >= object.pos.x && ball.pos.x <= object.pos.x+object.width) {
-        console.log("top/bottom");
         return "top/bottom";
     } else if (ball.pos.y >= object.pos.y-object.height && object.pos.y+object.height <= object.pos.y) {
-        console.log("left/right");
         return "left/right";
     }
     return "";
@@ -142,9 +155,12 @@ function generateLevel(level) {
         }
         for (row = 0; row < 4; row++) {
             for (col = 0; col < 8; col++) {
-                if (row < 3 && (col == 2 || col == 5)) continue;
+                if (col == 2 || col == 5) continue;
                 blocks.push(new Block(2+col*60, 160+row*20, 58, 16, colors[row]));
             }
+        }
+        for (col = 0; col < 8; col++) {
+            blocks.push(new Block(2+col*60, 160+row*20, 58, 16, "grey", 2));
         }
     } else {
         // simple random level
@@ -220,9 +236,13 @@ function loop() {
     game.blocks.forEach(function(block) {
         if (collisionDetection(ball, block)) {
             soundBlockHit.play();
-            var i = game.blocks.indexOf(block);
-            game.blocks.splice(i, 1);
             game.score += game.multiplier++;
+            
+            var health = block.damage();
+            if (health <= 0) {
+                var i = game.blocks.indexOf(block);
+                game.blocks.splice(i, 1);
+            }
 
             var side = collisionSide(ball, block);
             if (side == "top/bottom") {
