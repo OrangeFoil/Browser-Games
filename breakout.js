@@ -1,7 +1,6 @@
 const canvas = document.getElementById("gamecanvas");
 const context = canvas.getContext("2d");
 document.addEventListener("keydown", keyPush);
-//setInterval(loop,1000/60);
 lastTime = (new Date()).getTime();
 currentTime = 0;
 deltaTime = 0;
@@ -46,21 +45,41 @@ const ball = {
 
 const player = {
     pos: { x: null, y: null},
+    velocity: null,
     width: null,
     height: null,
     speed: null,
+    friction: null,
     draw: function() {
         context.fillStyle = "#F92672";
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     },
-    moveLeft: function() { if (this.pos.x >= -this.width/2) this.pos.x -= this.speed * deltaTime; },
-    moveRight: function() { if (this.pos.x+this.width/2 <= canvas.width) this.pos.x += this.speed * deltaTime; },
+    moveLeft: function() {
+        this.velocity -= this.speed;
+    },
+    moveRight: function() {
+        this.velocity += this.speed;
+    },
+    updatePosition: function() {
+        this.pos.x += this.velocity;
+        this.velocity *= this.friction;
+
+        if (this.pos.x+this.width/2 < 0) {
+            this.pos.x = -this.width/2;
+            this.velocity = 0;
+        } else if (this.pos.x+this.width/2 > canvas.width) {
+            this.pos.x = canvas.width-this.width/2;
+            this.velocity = 0;
+        }
+    },
     reset: function() {
         this.width = 120;
         this.height = 16;
         this.pos.x = canvas.width / 2 - this.width / 2;
         this.pos.y = canvas.height - 32;
-        this.speed = 1200;
+        this.velocity = 0;
+        this.speed = 12;
+        this.friction = 0.9;
     },
 };
 
@@ -130,6 +149,8 @@ function loop() {
     currentTime = (new Date()).getTime();
     deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
+
+    player.updatePosition();
 
     if (ball.pos.y-ball.height/2 > canvas.height) {
         // player missed the ball
