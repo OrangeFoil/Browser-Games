@@ -238,11 +238,13 @@ function loop() {
 
     if (game.demoMode) {
         // AI
-        if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) < 0) {
-            player.moveRight();
-        } else {
-            player.moveLeft();
-        }
+        if (ball.pos.y > canvas.height*0.3 && ball.pos.y < canvas.height*0.9) {
+            if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) < 50) {
+                player.moveRight();
+            } else if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) > -50) {
+                player.moveLeft();
+            }
+        }     
 
         context.fillStyle = "white";
         context.textAlign = "center";
