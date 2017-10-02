@@ -1,7 +1,10 @@
 const canvas = document.getElementById("gamecanvas");
 const context = canvas.getContext("2d");
 document.addEventListener("keydown", keyPush);
-setInterval(loop,1000/60);
+//setInterval(loop,1000/60);
+lastTime = (new Date()).getTime();
+currentTime = 0;
+deltaTime = 0;
 
 const game = {
     demoMode: null,
@@ -33,8 +36,8 @@ const ball = {
     reset: function() {
         this.pos.x = canvas.width / 2;
         this.pos.y = canvas.height - 64;
-        this.speed = -5;
-        this.velocity.x = (Math.random() + 0.5) * Math.pow(-1, Math.floor(Math.random() * 2));
+        this.speed = -300;
+        this.velocity.x = (Math.random() + 0.5) * Math.pow(-1, Math.floor(Math.random() * 2)) * 60;
         if (game.demoMode) this.velocity.x += 2;
         this.velocity.y = this.speed;
         this.width = this.height = 12;
@@ -50,14 +53,14 @@ const player = {
         context.fillStyle = "#F92672";
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     },
-    moveLeft: function() { if (this.pos.x >= 0) this.pos.x -= this.speed; },
-    moveRight: function() { if (this.pos.x <= canvas.width) this.pos.x += this.speed; },
+    moveLeft: function() { if (this.pos.x >= -this.width/2) this.pos.x -= this.speed * deltaTime; },
+    moveRight: function() { if (this.pos.x+this.width/2 <= canvas.width) this.pos.x += this.speed * deltaTime; },
     reset: function() {
         this.width = 120;
         this.height = 16;
         this.pos.x = canvas.width / 2 - this.width / 2;
         this.pos.y = canvas.height - 32;
-        this.speed = 20;
+        this.speed = 1200;
     },
 };
 
@@ -123,7 +126,11 @@ function generateLevel(level) {
 }
 
 function loop() {
-    // update ball position
+
+    currentTime = (new Date()).getTime();
+    deltaTime = (currentTime - lastTime) / 1000;
+    lastTime = currentTime;
+
     if (ball.pos.y-ball.height/2 > canvas.height) {
         // player missed the ball
         ball.reset();
@@ -137,12 +144,12 @@ function loop() {
         // ball touched left or right wall
         ball.velocity.x = -ball.velocity.x;
     }
-    ball.pos.x += ball.velocity.x;
-    ball.pos.y += ball.velocity.y;
+    ball.pos.x += ball.velocity.x * deltaTime;
+    ball.pos.y += ball.velocity.y * deltaTime;
 
     // detect ball collision with player
     if (collisionDetection(ball, player)) {
-        ball.velocity.x = (ball.pos.x - player.pos.x) / 10;
+        ball.velocity.x = ((ball.pos.x+ball.width/2) - (player.pos.x+player.width/2)) * 6;
         ball.velocity.y = -ball.velocity.y;
         game.multiplier = 1;
     }
@@ -194,9 +201,9 @@ function loop() {
 
     if (game.demoMode) {
         // AI
-        if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) < player.speed) {
+        if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) < 0) {
             player.moveRight();
-        } else if ((player.pos.x + player.width/2) - (ball.pos.x + ball.width/2) > -1*player.speed) {
+        } else {
             player.moveLeft();
         }
 
@@ -204,8 +211,9 @@ function loop() {
         context.textAlign = "center";
         context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
     }
-    
+    window.requestAnimationFrame(loop);
 }
+
 function keyPush(evt) {
 	switch(evt.keyCode) {
 		case 37:
@@ -226,3 +234,4 @@ function keyPush(evt) {
 game.reset();
 ball.reset();
 player.reset();
+loop();
