@@ -21,6 +21,10 @@ const ball = {
     velocity: {x: null, y: null },
     size: null,
     speed: null,
+    draw: function() {
+        context.fillStyle = "#F8F8F2";
+        context.fillRect(this.pos.x-this.size/2, this.pos.y-this.size/2, this.size, this.size);
+    },
     reset: function() {
         this.pos.x = canvas.width / 2;
         this.pos.y = canvas.height - 64;
@@ -36,6 +40,10 @@ const player = {
     width: null,
     height: null,
     speed: null,
+    draw: function() {
+        context.fillStyle = "#F92672";
+        context.fillRect(this.pos.x-this.width/2, this.pos.y, this.width, 16);
+    },
     moveLeft: function() { if (this.pos.x >= 0) this.pos.x -= this.speed; },
     moveRight: function() { if (this.pos.x <= canvas.width) this.pos.x += this.speed; },
     reset: function() {
@@ -52,6 +60,10 @@ function Block(x, y, width, height, color="#FFE792") {
     this.width = width;
     this.height = height;
     this.color = color;
+    this.draw = function() {
+        context.fillStyle = this.color;
+        context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+    };
 }
 
 function level1() {
@@ -105,18 +117,11 @@ function loop() {
     context.fillStyle = "#272822";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	// draw ball
-    context.fillStyle = "#F8F8F2";
-    context.fillRect(ball.pos.x-ball.size/2, ball.pos.y-ball.size/2, ball.size, ball.size);
-
-    // draw player
-	context.fillStyle = "#F92672";
-    context.fillRect(player.pos.x-player.width/2, player.pos.y, player.width, 16);
-
-    // draw blocks
+    // draw objects
+    ball.draw();
+    player.draw();
     game.blocks.forEach(function(block) {
-        context.fillStyle = block.color;
-        context.fillRect(block.pos.x, block.pos.y, block.width, block.height);
+        block.draw();
     });
 
     // draw score and lives
