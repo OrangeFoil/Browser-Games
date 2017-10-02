@@ -1,19 +1,18 @@
-window.onload=function() {
-	canvas=document.getElementById("gamecanvas");
-	context=canvas.getContext("2d");
-	document.addEventListener("keydown",keyPush);
-	setInterval(game,1000/60);
-}
+const canvas = document.getElementById("gamecanvas");
+const context = canvas.getContext("2d");
+document.addEventListener("keydown", keyPush);
+setInterval(game,1000/60);
+
 
 const ball = {
     speed: -5,
     size: 12,
-    pos: {x: 640 / 2, y: 480 / 2},
+    pos: {x: canvas.width / 2, y: canvas.height / 2},
     velocity: {x: 0, y: -5 },
 };
 
 const player = {
-    pos: { x: 160, y: 480-32},
+    pos: { x: canvas.width / 2, y: canvas.height-32},
     width: 120,
     height: 32,
     speed: 20,
