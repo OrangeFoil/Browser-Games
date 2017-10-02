@@ -51,24 +51,55 @@ const ball = {
     },
 };
 
-const player = {
-    pos: { x: null, y: null},
-    velocity: null,
-    width: null,
-    height: null,
-    speed: null,
-    friction: null,
-    draw: function() {
-        context.fillStyle = "#F92672";
+class Rectangle {
+    constructor(x, y, width, height, color="#FFF") {
+        this.pos = { x: x, y: y};
+        this.width = width;
+        this.height = height;
+        this.color = color;
+    }
+
+    get left() {
+        return this.pos.x;
+    }
+
+    get right() {
+        return this.pos.x + this.width;
+    }
+
+    get top() {
+        return this.pos.y;
+    }
+
+    get bottom() {
+        return this.pos.y + this.height;
+    }
+
+    draw() {
+        context.fillStyle = this.color;
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-    },
-    moveLeft: function() {
+    }
+}
+
+class Player extends Rectangle {
+    constructor() {
+        const width = 120;
+        const height = 16;
+        super(canvas.width / 2 - width/2, canvas.height - 32, width, height, "#F92672");
+        this.velocity = 0;
+        this.speed = 2;
+        this.friction = 0.9;
+    }
+
+    moveLeft() {
         this.velocity -= this.speed;
-    },
-    moveRight: function() {
+    }
+
+    moveRight() {
         this.velocity += this.speed;
-    },
-    updatePosition: function() {
+    }
+
+    updatePosition() {
         this.pos.x += this.velocity;
         this.velocity *= this.friction;
 
@@ -79,29 +110,6 @@ const player = {
             this.pos.x = canvas.width-this.width/2;
             this.velocity = 0;
         }
-    },
-    reset: function() {
-        this.width = 120;
-        this.height = 16;
-        this.pos.x = canvas.width / 2 - this.width / 2;
-        this.pos.y = canvas.height - 32;
-        this.velocity = 0;
-        this.speed = 2;
-        this.friction = 0.9;
-    },
-};
-
-class Rectangle {
-    constructor(x, y, width, height, color="#FFF") {
-        this.pos = { x: x, y: y};
-        this.width = width;
-        this.height = height;
-        this.color = color;
-    }
-
-    draw() {
-        context.fillStyle = this.color;
-        context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 }
 
@@ -196,7 +204,7 @@ function loop() {
         game.reset();
         game.demoMode = false;
         ball.reset();
-        player.reset();
+        player = new Player();
     }
 
     currentTime = (new Date()).getTime();
@@ -209,7 +217,7 @@ function loop() {
         // player missed the ball
         soundLifeLost.play();
         ball.reset();
-        player.reset();
+        player = new Player();
         game.multiplier = 1;
         if (--game.lives == 0) game.reset();
     } else if (ball.pos.y-ball.height/2 <= 0) {
@@ -301,7 +309,7 @@ function loop() {
 
 game.reset();
 ball.reset();
-player.reset();
+var player = new Player();
 soundPlayerHit = new sound("sounds/playerhit.wav");
 soundBlockHit = new sound("sounds/blockhit.mp3");
 soundWallHit = new sound("sounds/wallhit.wav");
