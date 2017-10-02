@@ -134,8 +134,19 @@ function generateLevel(level) {
                 blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
             }
         }
-    }
-    else {
+    } else if (level == 2) {
+        for (row = 0; row < 3; row++) {
+            for (col = 1; col < 7; col++) {
+                blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
+            }
+        }
+        for (row = 0; row < 4; row++) {
+            for (col = 0; col < 8; col++) {
+                if (row < 3 && (col == 2 || col == 5)) continue;
+                blocks.push(new Block(2+col*60, 160+row*20, 58, 16, colors[row]));
+            }
+        }
+    } else {
         // simple random level
         for (row = 0; row < 7; row++) {
             for (col = 0; col < 8; col++) {
