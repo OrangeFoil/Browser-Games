@@ -82,6 +82,24 @@ function collisionDetection(a, b) {
     return false;
 }
 
+// returns side on which the ball made contact
+function collisionSide(ball, object) {
+    // distance between upper side of ball and lower side of object
+    const up = Math.abs(ball.pos.y - object.pos.y+object.height);
+    // distance between lower side of ball and upper side of object
+    const down = Math.abs(ball.pos.y+ball.height - object.pos.y);
+    // distance between left side of ball and right side of object
+    const left = Math.abs(ball.pos.x - object.pos.x+object.width);
+    // distance between right side of ball and left side of object
+    const right = Math.abs(ball.pos.x+ball.width - object.pos.x);
+
+    const min = Math.min(up, down, left, right);
+    if (min == up) return "up";
+    if (min == down) return "down";
+    if (min == left) return "left";
+    return "right";
+}
+
 function generateLevel(level) {
     const blocks = [];
     const colors = ["#F92672", "#66D9EF", "#A6E22E", "#FD971F", "#AE81FF", "#FFE792", "#FFE792"];
@@ -132,11 +150,16 @@ function loop() {
     // detect ball collision with blocks
     game.blocks.forEach(function(block) {
         if (collisionDetection(ball, block)) {
-                var i = game.blocks.indexOf(block);
-                game.blocks.splice(i, 1);
-                game.score += ++game.multiplier;
-                ball.velocity.x = -ball.velocity.x;
+            var i = game.blocks.indexOf(block);
+            game.blocks.splice(i, 1);
+            game.score += game.multiplier++;
+
+            var side = collisionSide(ball, block);
+            if (side == "up" || side == "down") {
                 ball.velocity.y = -ball.velocity.y;
+            } else {
+                ball.velocity.x = -ball.velocity.x;
+            }
         }
     });
 
