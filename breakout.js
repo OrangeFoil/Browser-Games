@@ -87,7 +87,7 @@ class Game {
             this.player = new Player();
         }
 
-        this.player.updatePosition();
+        this.player.update(deltaTime);
 
         if (this.ball.pos.y-this.ball.height/2 > this.canvas.height) {
             // player missed the ball
@@ -247,7 +247,7 @@ class Player extends Rectangle {
         const height = 16;
         super(canvas.width / 2 - width/2, canvas.height - 32, width, height, "#F92672");
         this.velocity = 0;
-        this.speed = 2;
+        this.speed = 50;
         this.friction = 0.9;
     }
 
@@ -259,8 +259,8 @@ class Player extends Rectangle {
         this.velocity += this.speed;
     }
 
-    updatePosition() {
-        this.pos.x += this.velocity;
+    update(deltaTime) {
+        this.pos.x += this.velocity * deltaTime;
         this.velocity *= this.friction;
 
         if (this.pos.x+this.width/2 < 0) {
