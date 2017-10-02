@@ -51,7 +51,7 @@ class Game {
         this.score = 0;
         this.multiplier = 1;
         this.lives = 1;
-        this.level = Math.floor(Math.random() * 2) + 1;
+        this.level = Math.floor(Math.random() * 3) + 1;
 
         this.ball = new Ball();
         this.player = new Player();
@@ -316,14 +316,43 @@ function generateLevel(level) {
                 blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
             }
         }
+
         for (row = 0; row < 4; row++) {
             for (col = 0; col < 8; col++) {
                 if (col == 2 || col == 5) continue;
                 blocks.push(new Block(2+col*60, 160+row*20, 58, 16, colors[row]));
             }
         }
+
         for (col = 0; col < 8; col++) {
             blocks.push(new Block(2+col*60, 160+row*20, 58, 16, "grey", 2));
+        }
+    } else if (level == 3) {
+        blocks.push(new Block(60, 60, 16, 196, "grey", 2));
+        blocks.push(new Block(canvas.width-76, 60, 16, 196, "grey", 2));
+
+        for (row = 0; row < 3; row++) {
+            for (col = 0; col < 6; col++) {
+                blocks.push(new Block(80+col*54, 60+row*20, 50, 16, colors[row]));
+            }
+        }
+        for (row = 0; row < 4; row++) {
+            blocks.push(new Block(80, 120+row*20, 50, 16, colors[2]));
+            blocks.push(new Block(canvas.width-130, 120+row*20, 50, 16, colors[2]));
+        }
+
+        for (col = 0; col < 2; col++) {
+            blocks.push(new Block(134+col*108, 120, 104, 76, colors[5]));
+        }
+
+        for (row = 0; row < 3; row++) {
+            for (col = 0; col < 6; col++) {
+                blocks.push(new Block(80+col*54, 200+row*20, 50, 16, colors[2-row]));
+            }
+        }
+
+        for (col = 0; col < 6; col++) {
+            blocks.push(new Block(80+col*54, 200+row*20, 50, 16, "grey", 2));
         }
     } else {
         // simple random level
