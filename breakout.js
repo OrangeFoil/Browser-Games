@@ -4,26 +4,47 @@ document.addEventListener("keydown", keyPush);
 setInterval(loop,1000/60);
 
 const game = {
-    score: 0,
-    lives: 3,
+    score: null,
+    lives: null,
     level: null,
     blocks: null,
+    reset: function() {
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        this.blocks = level1();
+    },
 }
 
 const ball = {
-    speed: -5,
-    size: 12,
-    pos: {x: canvas.width / 2, y: canvas.height / 2},
-    velocity: {x: 0, y: -5 },
+    pos: {x: null, y: null},
+    velocity: {x: null, y: null },
+    size: null,
+    speed: null,
+    reset: function() {
+        this.pos.x = canvas.width / 2;
+        this.pos.y = canvas.height - 64;
+        this.speed = -5;
+        this.velocity.x = Math.random();
+        this.velocity.y = this.speed;
+        this.size = 12;
+    },
 };
 
 const player = {
-    pos: { x: canvas.width / 2, y: canvas.height-32},
-    width: 120,
-    height: 32,
-    speed: 20,
-    moveLeft: function() { this.pos.x -= this.speed; },
-    moveRight: function() { this.pos.x += this.speed; },
+    pos: { x: null, y: null},
+    width: null,
+    height: null,
+    speed: null,
+    moveLeft: function() { if (this.pos.x >= 0) this.pos.x -= this.speed; },
+    moveRight: function() { if (this.pos.x <= canvas.width) this.pos.x += this.speed; },
+    reset: function() {
+        this.pos.x = canvas.width / 2;
+        this.pos.y = canvas.height - 32;
+        this.width = 120;
+        this.height = 32;
+        this.speed = 20;
+    },
 };
 
 function Block(x, y, width, height, color="#FFE792") {
@@ -31,13 +52,6 @@ function Block(x, y, width, height, color="#FFE792") {
     this.width = width;
     this.height = height;
     this.color = color;
-}
-
-function resetGame() {
-    game.score = 0;
-    game.lives = 3;
-    game.level = 1;
-    game.blocks = level1();
 }
 
 function level1() {
@@ -55,12 +69,9 @@ function loop() {
     // update ball position
     if (ball.pos.y-ball.size/2 > canvas.height) {
         // player missed the ball
-        ball.pos.x = canvas.width / 2 - ball.size / 2;
-        ball.pos.y = canvas.height / 2 - ball.size / 2;
-        ball.velocity.x = 0;
-        ball.velocity.y = ball.speed;
-
-        if (--game.lives == 0) resetGame();
+        ball.reset();
+        player.reset();
+        if (--game.lives == 0) game.reset();
     } else if (ball.pos.y-ball.size/2 <= 0) {
         // ball touched ceiling
         ball.velocity.y = -ball.velocity.y;
@@ -132,4 +143,6 @@ function keyPush(evt) {
 	}
 }
 
-resetGame();
+game.reset();
+ball.reset();
+player.reset();
