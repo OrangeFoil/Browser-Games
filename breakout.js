@@ -59,7 +59,7 @@ class Game {
     }
 
     startGame() {
-        this.attractMode = true;
+        this.attractMode = false;
         this.score = 0;
         this.multiplier = 1;
         this.lives = 3;
@@ -78,13 +78,19 @@ class Game {
     }
 
     update(deltaTime) {
-        if (keys[37] && !this.attractMode) this.player.moveLeft();
-        else if (keys[39] && !this.attractMode) this.player.moveRight();
+        if (keys[37] && !this.attractMode) {
+            this.player.moveLeft();
+        }
+        if (keys[39] && !this.attractMode) {
+            this.player.moveRight();
+        }
         if (keys[13] && this.attractMode) {
             this.startGame();
-            this.attractMode = false;
             this.ball = new Ball();
             this.player = new Player();
+        }
+        if (keys[27] && !this.attractMode) {
+            this.startAttractMode();
         }
 
         this.player.update(deltaTime);
