@@ -4,11 +4,13 @@ document.addEventListener("keydown", keyPush);
 setInterval(loop,1000/60);
 
 const game = {
+    demoMode: null,
     score: null,
     lives: null,
     level: null,
     blocks: null,
     reset: function() {
+        this.demoMode = true;
         this.score = 0;
         this.lives = 3;
         this.level = 1;
@@ -29,7 +31,8 @@ const ball = {
         this.pos.x = canvas.width / 2;
         this.pos.y = canvas.height - 64;
         this.speed = -5;
-        this.velocity.x = Math.random();
+        this.velocity.x = (Math.random() + 0.5) * Math.pow(-1, Math.floor(Math.random() * 2));
+        if (game.demoMode) this.velocity.x += 2;
         this.velocity.y = this.speed;
         this.size = 12;
     },
@@ -71,7 +74,7 @@ function level1() {
     const colors = ["#F92672", "#66D9EF", "#A6E22E", "#FD971F", "#AE81FF", "#FFE792", "#FFE792"];
     for (row = 0; row < 7; row++) {
         for (col = 0; col < 8; col++) {
-            blocks.push(new Block(2+col*60, 48+row*20, 58, 16, colors[row]));
+            blocks.push(new Block(2+col*60, 60+row*20, 58, 16, colors[row]));
         }
     }
     return blocks;
@@ -127,24 +130,39 @@ function loop() {
     // draw score and lives
     context.fillStyle = "white";
     context.font = "20px Georgia";
+    context.textAlign = "left";
     context.fillText("Score: " + game.score, 10, 20);
-    context.fillText("Lives: " + game.lives, canvas.width-80, 20);
+    context.textAlign = "right";
+    context.fillText("Lives: " + game.lives, canvas.width-10, 20);
 
-    // AI
-    /*if (player.pos.x-ball.pos.x < -20) {
-        player.pos.x += 20;
-    } else if (player.pos.x-ball.pos.x > 20) {
-        player.pos.x -= 20;
-    }*/
+    if (game.demoMode) {
+        // AI
+        if (player.pos.x-ball.pos.x < -20) {
+            player.moveRight();
+        } else if (player.pos.x-ball.pos.x > 20) {
+            player.moveLeft();
+        }
+
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
+    }
+    
 }
 function keyPush(evt) {
 	switch(evt.keyCode) {
 		case 37:
-            player.moveLeft();
+            if (!game.demoMode) player.moveLeft();
 			break;
 		case 39:
-            player.moveRight();
-			break;
+            if (!game.demoMode) player.moveRight();
+            break;
+        case 13:
+            game.reset();
+            game.demoMode = false;
+            ball.reset();
+            player.reset();
+            break;
 	}
 }
 
