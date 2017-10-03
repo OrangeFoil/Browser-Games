@@ -1,8 +1,7 @@
-class Game {
+class GameScene extends AbstractScene {
     constructor(canvas) {
-        this.canvas = canvas;
-        this.context = this.canvas.getContext("2d");
-
+        super(canvas);
+        
         this.sound = {};
         this.initializeSounds();
         

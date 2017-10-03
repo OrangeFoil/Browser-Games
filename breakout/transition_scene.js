@@ -1,8 +1,7 @@
-class TransitionScene {
+class TransitionScene extends AbstractScene {
     constructor(canvas, message, duration) {
-        this.canvas = canvas;
-        this.context = this.canvas.getContext("2d");
-
+        super(canvas);
+        
         this.message = message;
         this.duration = duration;
         this.timeElapsed = 0;

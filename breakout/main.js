@@ -30,4 +30,4 @@ function touchEndHandler(e) {
     }
 }
 
-var game = new Game(canvas);
+var game = new GameScene(canvas);
