@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gamecanvas");
 const context = canvas.getContext("2d");
 
+// keyboard events
 var keys = [];
 document.body.addEventListener("keydown", function (e) {
     keys[e.keyCode] = true;
@@ -8,6 +9,27 @@ document.body.addEventListener("keydown", function (e) {
 document.body.addEventListener("keyup", function (e) {
     keys[e.keyCode] = false;
 });
+
+// touchscreen events
+var touch = "";
+document.addEventListener("touchstart", touchStartHandler);
+document.addEventListener("touchend", touchEndHandler);
+function touchStartHandler(e) {
+    if(e.touches) {
+        if (e.touches[0].pageX < canvas.offsetLeft + canvas.width/2) {
+            touch = "left";
+        } else {
+            touch = "right";
+        }
+        e.preventDefault();
+    }
+}
+function touchEndHandler(e) {
+    if(e.touches) {
+        touch = "";
+        e.preventDefault();
+    }
+}
 
 function sound(src) {
     this.sound = document.createElement("audio");
@@ -84,13 +106,13 @@ class Game {
     }
 
     processInput() {
-        if (keys[37] && !this.attractMode) {
+        if ((keys[37] || touch == "left") && !this.attractMode) {
             this.player.moveLeft();
         }
-        if (keys[39] && !this.attractMode) {
+        if ((keys[39] || touch == "right") && !this.attractMode) {
             this.player.moveRight();
         }
-        if (keys[13] && this.attractMode) {
+        if ((keys[13] || touch != "") && this.attractMode) {
             this.startGame();
             this.ball = new Ball();
             this.player = new Player();
