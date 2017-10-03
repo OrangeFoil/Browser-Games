@@ -155,6 +155,17 @@ class Game {
                 this.player = new Player();
             }
         }
+
+        // AI
+        if (this.attractMode) {
+            if (this.ball.pos.y > this.canvas.height*0.3 && this.ball.pos.y < this.canvas.height*0.9) {
+                if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) < 50) {
+                    this.player.moveRight();
+                } else if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) > -50) {
+                    this.player.moveLeft();
+                }
+            }
+        }
     }
 
     render() {
@@ -181,15 +192,6 @@ class Game {
         context.globalAlpha = 1;
 
         if (this.attractMode) {
-            // AI
-            if (this.ball.pos.y > this.canvas.height*0.3 && this.ball.pos.y < this.canvas.height*0.9) {
-                if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) < 50) {
-                    this.player.moveRight();
-                } else if ((this.player.pos.x + this.player.width/2) - (this.ball.pos.x + this.ball.width/2) > -50) {
-                    this.player.moveLeft();
-                }
-            }     
-
             context.fillStyle = "white";
             context.textAlign = "center";
             context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
