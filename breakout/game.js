@@ -8,18 +8,36 @@ class Game {
         
         this.startAttractMode();
 
+        this.gameScene = {
+            processInput: this.processInputGame,
+            simulate: this.simulateGame,
+            render: this.renderGame,
+        };
+        this.transitionScene = {
+            processInput: this.processInputTransition,
+            simulate: this.simulateTransition,
+            render: this.renderTransition,
+        };
+        this.activeScene = this.gameScene;
+
+        this.transitionMessage = "";
+        this.transitionDuration = 1000;
+
         this.accumulator = 0;
         this.step = 1/360;
         let lastTime = null;
         this._frameCallback = (timestamp) => {
+            if (this.scene == "game") {
+                
+            }
             if (lastTime !== null) {
                 this.accumulator += (timestamp - lastTime) / 1000;
                 while (this.accumulator >= this.step) {
-                    this.processInput();
-                    this.simulate(this.step);
+                    this.activeScene.processInput.call(this);
+                    this.activeScene.simulate.call(this, this.step);
                     this.accumulator -= this.step;
                 }
-                this.render();
+                this.activeScene.render.call(this);
             }
             lastTime = timestamp;
             requestAnimationFrame(this._frameCallback);
@@ -49,6 +67,17 @@ class Game {
         this.ball = new Ball();
         this.player = new Player();
         this.blocks = this.generateLevel(this.level);
+
+        this.startTransition("Get Ready!", 1500);
+    }
+
+    startTransition(message, duration) {
+        this.transitionMessage = message;
+        this.transitionDuration = duration;
+        setTimeout(() => {
+            this.activeScene = this.gameScene;
+        }, duration);
+        this.activeScene = this.transitionScene;
     }
 
     initializeSounds() {
@@ -58,7 +87,7 @@ class Game {
         this.sound["LifeLost"] = new sound("sounds/lifelost.mp3");
     }
 
-    processInput() {
+    processInputGame() {
         if ((keys[37] || touch == "left") && !this.attractMode) {
             this.player.moveLeft();
         }
@@ -74,8 +103,12 @@ class Game {
             this.startAttractMode();
         }
     }
+
+    processInputTransition() {
+        return;
+    }
     
-    simulate(deltaTime) {
+    simulateGame(deltaTime) {
         this.player.update(deltaTime);
 
         if (this.ball.pos.y-this.ball.height/2 > this.canvas.height) {
@@ -84,7 +117,10 @@ class Game {
             this.ball = new Ball();
             this.player = new Player();
             this.multiplier = 1;
-            if (--this.lives == 0) this.startAttractMode(); // fix me
+            if (--this.lives == 0) {
+                this.startAttractMode();
+                this.startTransition("Game Over", 3000);
+            }
         } else if (this.ball.pos.y-this.ball.height/2 <= 0) {
             // ball touched ceiling
             this.sound["WallHit"].play();
@@ -140,6 +176,8 @@ class Game {
                 this.blocks = this.generateLevel(++this.level);
                 this.ball = new Ball();
                 this.player = new Player();
+
+                this.startTransition("Level " + this.level, 2000);
             }
         }
 
@@ -155,7 +193,11 @@ class Game {
         }
     }
 
-    render() {
+    simulateTransition(deltaTime) {
+        return;
+    }
+
+    renderGame() {
         // draw background
         this.context.fillStyle = "#272822";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -186,6 +228,18 @@ class Game {
             this.context.fillText("Lives: " + this.lives, this.canvas.width-10, 20);
             this.context.globalAlpha = 1;
         }
+    }
+
+    renderTransition() {
+        // draw background
+        this.context.fillStyle = "#272822";
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // draw message
+        this.context.fillStyle = "white";
+        this.context.font = "20px Georgia";
+        this.context.textAlign = "center";
+        this.context.fillText(this.transitionMessage, this.canvas.width / 2, this.canvas.height / 2);
     }
 
     generateLevel(level) {
