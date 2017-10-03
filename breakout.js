@@ -147,8 +147,12 @@ class Game {
         // detect ball collision with player
         if (this.ball.collisionDetection(this.player)) {
             this.sound["PlayerHit"].play();
-            this.ball.velocity.x = ((this.ball.pos.x+this.ball.width/2) - (this.player.pos.x+this.player.width/2)) * 6;
-            this.ball.velocity.y = -this.ball.velocity.y;
+            if (this.ball.collisionSide(this.player) == "top/bottom") {
+                this.ball.velocity.x = ((this.ball.pos.x+this.ball.width/2) - (this.player.pos.x+this.player.width/2)) * 6;
+                this.ball.velocity.y = -this.ball.velocity.y;
+            } else {
+                this.ball.velocity.x *= -1; 
+            }
             this.multiplier = 1;
         }
 
@@ -244,16 +248,32 @@ class Rectangle {
         return this.pos.x;
     }
 
+    set left(x) {
+        this.pos.x = x;
+    }
+
     get right() {
         return this.pos.x + this.width;
+    }
+
+    set right(x) {
+        this.pos.x = x - this.width;
     }
 
     get top() {
         return this.pos.y;
     }
+    
+    set top(y) {
+            this.pos.y = y;
+    }
 
     get bottom() {
         return this.pos.y + this.height;
+    }
+    
+    set bottom(y) {
+            this.pos.y = y - this.height;
     }
 
     collisionDetection(object) {
@@ -266,11 +286,11 @@ class Rectangle {
         return false;
     }
 
+    // returns whether object was hit from top/bottom or left/right
     collisionSide(object) {
         const intersectionVertical = this.height + object.height - Math.abs(this.top-object.top) - Math.abs(this.bottom-object.bottom);
         const intersectionHorizontal = this.width + object.width - Math.abs(this.left-object.left) - Math.abs(this.right-object.right);
 
-        // top/bottom or left/right
         if (intersectionVertical <= intersectionHorizontal) {
             return "top/bottom";
         } else {
