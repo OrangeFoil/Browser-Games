@@ -40,6 +40,7 @@ class Game {
             if (lastTime !== null) {
                 this.accumulator += (timestamp - lastTime) / 1000;
                 while (this.accumulator >= this.step) {
+                    this.processInput();
                     this.simulate(this.step);
                     this.accumulator -= this.step;
                 }
@@ -82,7 +83,7 @@ class Game {
         this.sound["LifeLost"] = new sound("sounds/lifelost.mp3");
     }
 
-    simulate(deltaTime) {
+    processInput() {
         if (keys[37] && !this.attractMode) {
             this.player.moveLeft();
         }
@@ -97,7 +98,9 @@ class Game {
         if (keys[27] && !this.attractMode) {
             this.startAttractMode();
         }
-
+    }
+    
+    simulate(deltaTime) {
         this.player.update(deltaTime);
 
         if (this.ball.pos.y-this.ball.height/2 > this.canvas.height) {
