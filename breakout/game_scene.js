@@ -74,9 +74,15 @@ class GameScene extends AbstractScene {
             this.ball = new Ball();
             this.player = new Player();
             this.multiplier = 1;
-            if (--this.lives == 0) {
+            this.lives--;
+
+            if (this.lives == 0) {
                 this.startAttractMode();
                 this.startTransition("Game Over", 3.5);
+            } else if (this.lives == 1) {
+                this.startTransition("Last life!", 1.5);
+            } else {
+                this.startTransition(this.lives + " lives left", 1.5);
             }
         } else if (this.ball.pos.y-this.ball.height/2 <= 0) {
             // ball touched ceiling
