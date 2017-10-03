@@ -61,7 +61,9 @@ class Rectangle {
         return "";
     }
 
-    draw() {
+    draw(canvas) {
+        const context = canvas.getContext("2d");
+
         context.save();
 
         context.shadowBlur = 10;

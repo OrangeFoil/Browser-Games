@@ -1,6 +1,7 @@
 class Game {
     constructor(canvas) {
         this.canvas = canvas;
+        this.context = this.canvas.getContext("2d");
 
         this.sound = {};
         this.initializeSounds();
@@ -156,34 +157,34 @@ class Game {
 
     render() {
         // draw background
-        context.fillStyle = "#272822";
-        context.fillRect(0, 0, canvas.width, canvas.height);
+        this.context.fillStyle = "#272822";
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // draw objects
-        this.ball.draw();
-        this.player.draw();
-        this.blocks.forEach(function(block) {
-            block.draw();
+        this.ball.draw(this.canvas);
+        this.player.draw(this.canvas);
+        this.blocks.forEach((block)=> {
+            block.draw(this.canvas);
         });
 
         // draw text
         if (this.attractMode) {
-            context.fillStyle = "rgba(0, 0, 0, 0.75)";
-            context.fillRect(canvas.width/2-140, canvas.height*3/4-20, 280, 28);
-            context.fillStyle = "white";
-            context.font = "20px Georgia";
-            context.textAlign = "center";
-            context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height * 3/4);
+            this.context.fillStyle = "rgba(0, 0, 0, 0.75)";
+            this.context.fillRect(this.canvas.width/2-140, this.canvas.height*3/4-20, 280, 28);
+            this.context.fillStyle = "white";
+            this.context.font = "20px Georgia";
+            this.context.textAlign = "center";
+            this.context.fillText("Press <enter> to start playing", this.canvas.width / 2, this.canvas.height * 3/4);
         } else {
-            context.fillStyle = "rgba(255, 255, 255, 0.75)";
-            context.font = "20px Georgia";
-            context.textAlign = "left";
-            context.fillText("Score: " + this.score, 10, 20);
-            context.textAlign = "center";
-            context.fillText("Level: " + this.level, canvas.width/2, 20);
-            context.textAlign = "right";
-            context.fillText("Lives: " + this.lives, canvas.width-10, 20);
-            context.globalAlpha = 1;
+            this.context.fillStyle = "rgba(255, 255, 255, 0.75)";
+            this.context.font = "20px Georgia";
+            this.context.textAlign = "left";
+            this.context.fillText("Score: " + this.score, 10, 20);
+            this.context.textAlign = "center";
+            this.context.fillText("Level: " + this.level, this.canvas.width/2, 20);
+            this.context.textAlign = "right";
+            this.context.fillText("Lives: " + this.lives, this.canvas.width-10, 20);
+            this.context.globalAlpha = 1;
         }
     }
 
@@ -215,7 +216,7 @@ class Game {
             }
         } else if (level == 3) {
             blocks.push(new Block(60, 60, 16, 196, "grey", 2));
-            blocks.push(new Block(canvas.width-76, 60, 16, 196, "grey", 2));
+            blocks.push(new Block(this.canvas.width-76, 60, 16, 196, "grey", 2));
 
             for (let row = 0; row < 3; row++) {
                 for (let col = 0; col < 6; col++) {
@@ -224,7 +225,7 @@ class Game {
             }
             for (let row = 0; row < 4; row++) {
                 blocks.push(new Block(80, 120+row*20, 50, 16, colors[2]));
-                blocks.push(new Block(canvas.width-130, 120+row*20, 50, 16, colors[2]));
+                blocks.push(new Block(this.canvas.width-130, 120+row*20, 50, 16, colors[2]));
             }
 
             for (let col = 0; col < 2; col++) {

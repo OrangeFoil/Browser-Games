@@ -9,8 +9,10 @@ class Block extends Rectangle {
         return this.health;
     }
 
-    draw() {
-        super.draw();
+    draw(canvas) {
+        super.draw(canvas);
+
+        const context = canvas.getContext("2d");
         if (this.health > 1) {
             context.strokeStyle = "darkgray";
             context.lineWidth = 1;

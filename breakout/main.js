@@ -1,5 +1,4 @@
 const canvas = document.getElementById("gamecanvas");
-const context = canvas.getContext("2d");
 
 // keyboard events
 var keys = [];
