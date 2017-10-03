@@ -186,20 +186,23 @@ class Game {
         });
 
         // draw text
-        context.fillStyle = "rgba(255, 255, 255, 0.75)";
-        context.font = "20px Georgia";
-        context.textAlign = "left";
-        context.fillText("Score: " + this.score, 10, 20);
-        context.textAlign = "center";
-        context.fillText("Level: " + this.level, canvas.width/2, 20);
-        context.textAlign = "right";
-        context.fillText("Lives: " + this.lives, canvas.width-10, 20);
-        context.globalAlpha = 1;
-
         if (this.attractMode) {
+            context.fillStyle = "rgba(0, 0, 0, 0.75)";
+            context.fillRect(canvas.width/2-140, canvas.height*3/4-20, 280, 28);
             context.fillStyle = "white";
+            context.font = "20px Georgia";
             context.textAlign = "center";
-            context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height / 2);
+            context.fillText("Press <enter> to start playing", canvas.width / 2, canvas.height * 3/4);
+        } else {
+            context.fillStyle = "rgba(255, 255, 255, 0.75)";
+            context.font = "20px Georgia";
+            context.textAlign = "left";
+            context.fillText("Score: " + this.score, 10, 20);
+            context.textAlign = "center";
+            context.fillText("Level: " + this.level, canvas.width/2, 20);
+            context.textAlign = "right";
+            context.fillText("Lives: " + this.lives, canvas.width-10, 20);
+            context.globalAlpha = 1;
         }
     }
 }
