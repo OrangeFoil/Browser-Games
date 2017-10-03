@@ -1,3 +1,4 @@
+/** Generic rectangles */
 class Rectangle {
     constructor(x, y, width, height, color="#FFF") {
         this.pos = { x: x, y: y};

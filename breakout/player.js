@@ -1,3 +1,4 @@
+/** The paddle that's controlled by the player */
 class Player extends Rectangle {
     constructor() {
         const width = 120;

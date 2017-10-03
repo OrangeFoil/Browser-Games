@@ -1,3 +1,4 @@
+/** The bricks the player must hit in order to progress and score points */
 class Block extends Rectangle {
     constructor(x, y, width, height, color="#FFE792", health=1) {
         super(x, y, width, height, color);

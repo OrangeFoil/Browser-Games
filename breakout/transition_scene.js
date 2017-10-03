@@ -1,3 +1,4 @@
+/** Displays an animated message */
 class TransitionScene extends AbstractScene {
     constructor(canvas, dispatcher, message, duration) {
         super(canvas, dispatcher); 

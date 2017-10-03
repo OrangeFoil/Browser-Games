@@ -1,3 +1,4 @@
+/** Game logic */
 class GameScene extends AbstractScene {
     constructor(canvas, dispatcher) {
         super(canvas, dispatcher);
