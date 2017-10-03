@@ -33,11 +33,16 @@ class Game {
         
         this.startAttractMode();
 
+        this.accumulator = 0;
+        this.step = 1/360;
         let lastTime = null;
         this._frameCallback = (timestamp) => {
             if (lastTime !== null) {
-                const diff = timestamp - lastTime;
-                this.update(diff / 1000);
+                this.accumulator += (timestamp - lastTime) / 1000;
+                while (this.accumulator >= this.step) {
+                    this.simulate(this.step);
+                    this.accumulator -= this.step;
+                }
                 this.render();
             }
             lastTime = timestamp;
@@ -77,7 +82,7 @@ class Game {
         this.sound["LifeLost"] = new sound("sounds/lifelost.mp3");
     }
 
-    update(deltaTime) {
+    simulate(deltaTime) {
         if (keys[37] && !this.attractMode) {
             this.player.moveLeft();
         }
