@@ -27,9 +27,6 @@ class Game {
         this.step = 1/360;
         let lastTime = null;
         this._frameCallback = (timestamp) => {
-            if (this.scene == "game") {
-                
-            }
             if (lastTime !== null) {
                 this.accumulator += (timestamp - lastTime) / 1000;
                 while (this.accumulator >= this.step) {
