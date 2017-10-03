@@ -30,4 +30,7 @@ function touchEndHandler(e) {
     }
 }
 
-var game = new GameScene(canvas);
+const dispatcher = new Dispatcher();
+var gameScene = new GameScene(canvas, dispatcher);
+dispatcher.changeScene(gameScene);
+dispatcher.start();

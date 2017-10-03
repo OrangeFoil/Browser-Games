@@ -1,33 +1,11 @@
 class GameScene extends AbstractScene {
-    constructor(canvas) {
-        super(canvas);
+    constructor(canvas, dispatcher) {
+        super(canvas, dispatcher);
         
         this.sound = {};
         this.initializeSounds();
         
         this.startAttractMode();
-
-        this.gameScene = this;
-        this.transitionScene = null;
-        this.activeScene = this.gameScene;
-
-        this.accumulator = 0;
-        this.step = 1/360;
-        let lastTime = null;
-        this._frameCallback = (timestamp) => {
-            if (lastTime !== null) {
-                this.accumulator += (timestamp - lastTime) / 1000;
-                while (this.accumulator >= this.step) {
-                    this.activeScene.processInput();
-                    this.activeScene.simulate(this.step);
-                    this.accumulator -= this.step;
-                }
-                this.activeScene.render();
-            }
-            lastTime = timestamp;
-            requestAnimationFrame(this._frameCallback);
-        };
-        requestAnimationFrame(this._frameCallback);
     }
 
     startAttractMode() {
@@ -57,9 +35,9 @@ class GameScene extends AbstractScene {
     }
 
     startTransition(message, duration) {
-        this.activeScene = new TransitionScene(this.canvas, message, duration);
+        this.dispatcher.changeScene(new TransitionScene(this.canvas, this.dispatcher, message, duration));
         setTimeout(() => {
-            this.activeScene = this.gameScene;
+            this.dispatcher.changeScene(this);
         }, duration * 1000);
     }
 
