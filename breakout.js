@@ -267,10 +267,13 @@ class Rectangle {
     }
 
     collisionSide(object) {
+        const intersectionVertical = this.height + object.height - Math.abs(this.top-object.top) - Math.abs(this.bottom-object.bottom);
+        const intersectionHorizontal = this.width + object.width - Math.abs(this.left-object.left) - Math.abs(this.right-object.right);
+
         // top/bottom or left/right
-        if (this.right >= object.left && this.left <= object.right) {
+        if (intersectionVertical <= intersectionHorizontal) {
             return "top/bottom";
-        } else if (this.top >= object.bottom && this.bottom <= object.top) {
+        } else {
             return "left/right";
         }
         return "";
