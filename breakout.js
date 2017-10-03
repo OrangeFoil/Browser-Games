@@ -278,10 +278,16 @@ class Rectangle {
 
     draw() {
         context.save();
-        context.shadowBlur = 20;
+
+        context.shadowBlur = 10;
         context.shadowColor = "black";
         context.fillStyle = this.color;
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+
+        context.strokeStyle = "black";
+        context.lineWidth = 1;
+        context.strokeRect(this.pos.x+0.5, this.pos.y+0.5, this.width-1, this.height-1);
+
         context.restore();
     }
 }
@@ -341,9 +347,11 @@ class Block extends Rectangle {
 
     draw() {
         super.draw();
-        context.strokeStyle = "black";
-        context.lineWidth = 1;
-        context.strokeRect(this.pos.x+1, this.pos.y+1, this.width-2, this.height-2);
+        if (this.health > 1) {
+            context.strokeStyle = "darkgray";
+            context.lineWidth = 1;
+            context.strokeRect(this.pos.x+2.5, this.pos.y+2.5, this.width-5, this.height-5);
+        }
     }
 }
 
