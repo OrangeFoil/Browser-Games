@@ -277,8 +277,12 @@ class Rectangle {
     }
 
     draw() {
+        context.save();
+        context.shadowBlur = 20;
+        context.shadowColor = "black";
         context.fillStyle = this.color;
         context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+        context.restore();
     }
 }
 
@@ -333,6 +337,13 @@ class Block extends Rectangle {
     damage(d=1) {
         this.health -= d;
         return this.health;
+    }
+
+    draw() {
+        super.draw();
+        context.strokeStyle = "black";
+        context.lineWidth = 1;
+        context.strokeRect(this.pos.x+1, this.pos.y+1, this.width-2, this.height-2);
     }
 }
 
