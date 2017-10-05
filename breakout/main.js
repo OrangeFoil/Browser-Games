@@ -3,10 +3,10 @@ const canvas = document.getElementById("gamecanvas");
 // keyboard events
 var keys = [];
 document.body.addEventListener("keydown", function (e) {
-    keys[e.keyCode] = true;
+    keys[e.code] = true;
 });
 document.body.addEventListener("keyup", function (e) {
-    keys[e.keyCode] = false;
+    keys[e.code] = false;
 });
 
 // touchscreen events

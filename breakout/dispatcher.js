@@ -2,7 +2,6 @@
 class Dispatcher {
     constructor(scene) {
         this.scene = scene;
-        console.log("test");
     }
 
     changeScene(scene) {
