@@ -106,6 +106,7 @@ class GameScene extends AbstractScene {
             } else {
                 this.ball.velocity.x *= -1; 
             }
+            this.ball.unclipY(this.player);
             this.multiplier = 1;
         }
 

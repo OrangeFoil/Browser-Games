@@ -62,6 +62,15 @@ class Rectangle {
         return "";
     }
 
+    // unclips vertically intersecting rectangles
+    unclipY(object) {
+        if (this.bottom > object.top) {
+            this.bottom = object.top;
+        } else if (this.top < object.bottom) {
+            this.top = object.bottom;
+        }
+    }
+
     draw(canvas) {
         const context = canvas.getContext("2d");
 
