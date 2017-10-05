@@ -4,11 +4,9 @@ class Keyboard {
 
         document.body.addEventListener("keydown", (e) => {
             this.keyup(e.code);
-            e.preventDefault();
         });
         document.body.addEventListener("keyup", (e) => {
             this.keydown(e.code);
-            e.preventDefault();
         });
     }
     
