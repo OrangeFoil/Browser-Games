@@ -172,12 +172,22 @@ class GameScene extends AbstractScene {
 
         // draw text
         if (this.attractMode) {
-            this.context.fillStyle = "rgba(0, 0, 0, 0.75)";
-            this.context.fillRect(this.canvas.width/2-140, this.canvas.height*3/4-20, 280, 28);
-            this.context.fillStyle = "white";
             this.context.font = "20px Georgia";
             this.context.textAlign = "center";
-            this.context.fillText("Press <enter> to start playing", this.canvas.width / 2, this.canvas.height * 3/4);
+            var text = "Press <enter> to start playing";
+            var textsize = this.context.measureText(text);
+
+            this.context.fillStyle = "rgba(0, 0, 0, 0.75)";
+            this.context.fillRect(
+                this.canvas.width/2 - textsize.width/2 - 10,
+                this.canvas.height*3/4 - 20,
+                textsize.width + 20,
+                30
+            );
+            
+            this.context.fillStyle = "white";
+            this.context.fillText(text, this.canvas.width / 2, this.canvas.height * 3/4);
+            //this.context.strokeText(text, this.canvas.width / 2, this.canvas.height * 3/4);
         } else {
             this.context.fillStyle = "rgba(255, 255, 255, 0.75)";
             this.context.font = "20px Georgia";
