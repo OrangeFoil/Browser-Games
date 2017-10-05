@@ -69,7 +69,7 @@ class GameScene extends AbstractScene {
     simulate(deltaTime) {
         this.player.update(deltaTime);
 
-        if (this.ball.pos.y-this.ball.height/2 > this.canvas.height) {
+        if (this.ball.top > this.canvas.height) {
             // player missed the ball
             this.sound["LifeLost"].play();
             this.ball = new Ball();
@@ -85,11 +85,11 @@ class GameScene extends AbstractScene {
             } else {
                 this.startTransition(this.lives + " lives left", 1.5);
             }
-        } else if (this.ball.pos.y-this.ball.height/2 <= 0) {
+        } else if (this.ball.top <= 0) {
             // ball touched ceiling
             this.sound["WallHit"].play();
             this.ball.velocity.y = -this.ball.velocity.y;
-        } else if (this.ball.pos.x-this.ball.width/2 <= 0 || this.ball.pos.x+this.ball.width/2 >= this.canvas.width) {
+        } else if (this.ball.left <= 0 || this.ball.right >= this.canvas.width) {
             // ball touched left or right wall
             this.sound["WallHit"].play();
             this.ball.velocity.x = -this.ball.velocity.x;
@@ -101,7 +101,7 @@ class GameScene extends AbstractScene {
         if (this.ball.collisionDetection(this.player)) {
             this.sound["PlayerHit"].play();
             if (this.ball.collisionSide(this.player) == "top/bottom") {
-                this.ball.velocity.x = ((this.ball.pos.x+this.ball.width/2) - (this.player.pos.x+this.player.width/2)) * 6;
+                this.ball.velocity.x = ((this.ball.right) - (this.player.pos.x+this.player.width/2)) * 6;
                 this.ball.velocity.y = -this.ball.velocity.y;
             } else {
                 this.ball.velocity.x *= -1; 
