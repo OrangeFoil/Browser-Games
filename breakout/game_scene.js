@@ -50,18 +50,18 @@ class GameScene extends AbstractScene {
     }
 
     processInput() {
-        if ((keys["ArrowLeft"] || touch == "left") && !this.attractMode) {
+        if ((keyboard.isPressed("ArrowLeft") || touchscreen.action == "left") && !this.attractMode) {
             this.player.moveLeft();
         }
-        if ((keys["ArrowRight"] || touch == "right") && !this.attractMode) {
+        if ((keyboard.isPressed("ArrowRight") || touchscreen.action == "right") && !this.attractMode) {
             this.player.moveRight();
         }
-        if ((keys["Enter"] || touch != "") && this.attractMode) {
+        if ((keyboard.isPressed("Enter") || touchscreen.action != "") && this.attractMode) {
             this.startGame();
             this.ball = new Ball();
             this.player = new Player();
         }
-        if (keys["Escape"] && !this.attractMode) {
+        if (keyboard.isPressed("Escape") && !this.attractMode) {
             this.startAttractMode();
         }
     }
