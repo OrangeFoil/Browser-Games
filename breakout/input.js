@@ -3,23 +3,23 @@ class Keyboard {
         this.keys = [];
 
         document.body.addEventListener("keydown", (e) => {
-            this.keyup(e.code);
+            this.keyup(e.key);
         });
         document.body.addEventListener("keyup", (e) => {
-            this.keydown(e.code);
+            this.keydown(e.key);
         });
     }
     
-    keydown(code) {
-        this.keys[code] = false;
+    keydown(key) {
+        this.keys[key] = false;
     }
     
-    keyup(code) {
-        this.keys[code] = true;
+    keyup(key) {
+        this.keys[key] = true;
     }
 
-    isPressed(code) {
-        return this.keys[code];
+    isPressed(key) {
+        return this.keys[key];
     }    
 }
 
