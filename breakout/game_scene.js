@@ -5,6 +5,10 @@ class GameScene extends AbstractScene {
         
         this.sound = {};
         this.initializeSounds();
+
+        this.blocksCanvasBuffer = document.createElement('canvas');
+        this.blocksCanvasBuffer.width = this.canvas.width;
+        this.blocksCanvasBuffer.height = this.canvas.height;
         
         this.startAttractMode();
     }
@@ -19,6 +23,7 @@ class GameScene extends AbstractScene {
         this.ball = new Ball();
         this.player = new Player();
         this.blocks = this.generateLevel(this.level);
+        this.redrawBlocksCanvasBuffer();
     }
 
     startGame() {
@@ -31,6 +36,7 @@ class GameScene extends AbstractScene {
         this.ball = new Ball();
         this.player = new Player();
         this.blocks = this.generateLevel(this.level);
+        this.redrawBlocksCanvasBuffer();
 
         this.startTransition("Get Ready!", 1.5);
     }
@@ -121,6 +127,7 @@ class GameScene extends AbstractScene {
                     var i = this.blocks.indexOf(block);
                     this.blocks.splice(i, 1);
                 }
+                this.redrawBlocksCanvasBuffer();
 
                 var side = this.ball.collisionSide(block);
                 if (side == "top/bottom") {
@@ -139,6 +146,7 @@ class GameScene extends AbstractScene {
             } else {
                 // move to next level
                 this.blocks = this.generateLevel(++this.level);
+                this.redrawBlocksCanvasBuffer();
                 this.ball = new Ball();
                 this.player = new Player();
 
@@ -158,17 +166,29 @@ class GameScene extends AbstractScene {
         }
     }
 
+    redrawBlocksCanvasBuffer() {
+        // clear buffer
+        const blockContext = this.blocksCanvasBuffer.getContext("2d");
+        blockContext.clearRect(0, 0, this.blocksCanvasBuffer.width, this.blocksCanvasBuffer.height);
+
+        // redraw blocks to buffer
+        this.blocks.forEach((block)=> {
+            block.draw(this.blocksCanvasBuffer);
+        });
+    }
+
     render() {
         // draw background
         this.context.fillStyle = "#272822";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // draw objects
+        // draw ball and player
         this.ball.draw(this.canvas);
         this.player.draw(this.canvas);
-        this.blocks.forEach((block)=> {
-            block.draw(this.canvas);
-        });
+
+        // draw blocks buffer
+        this.context.drawImage(this.blocksCanvasBuffer, 0 , 0);
+        
 
         // draw text
         if (this.attractMode) {
