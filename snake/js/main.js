@@ -17,16 +17,19 @@ document.body.addEventListener("keydown", (e) => {
     switch (e.key) {
         case "ArrowUp":
             game.inputs.push("up");
+            e.preventDefault();
             break;
         case "ArrowRight":
             game.inputs.push("right");
+            e.preventDefault();
             break;
         case "ArrowDown":
             game.inputs.push("down");
+            e.preventDefault();
             break;
         case "ArrowLeft":
             game.inputs.push("left");
+            e.preventDefault();
             break;
     }
-    e.preventDefault();
 });
