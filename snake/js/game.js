@@ -6,6 +6,35 @@ class Game {
         this.arenaSize = 31;
         this.reset();
         this.loadTextures();
+
+         // textbox
+         const textBackground = new PIXI.Graphics();
+         textBackground.beginFill(0x202020, 1);
+         textBackground.drawRect(496, 0, 616-496, 496);
+         app.stage.addChild(textBackground);
+
+         var textStyle = new PIXI.TextStyle({
+            align: 'right',
+            fontFamily: 'Arial',
+            fontSize: 24,
+            fontStyle: 'italic',
+            fontWeight: 'bold',
+            fill: ['#ffffff', '#00ff99'], // gradient
+            stroke: '#4a1850',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440
+        });
+        this.text = new PIXI.Text("", textStyle);
+        this.text.anchor.x = 1;
+        this.text.x = 600;
+        this.text.y = 16;
+        app.stage.addChild(this.text);
     }
 
     draw() {
@@ -101,8 +130,17 @@ class Game {
             this.containerSnake.addChild(spriteSnakeTail);
         }
         
-
         app.stage.addChild(this.containerSnake);
+
+        // text
+        this.text.text = "Time\n" + Math.floor(this.time / 60) + ":" + Math.floor(this.time % 60).toLocaleString("en-GB", {minimumIntegerDigits: 2}) + "\n\n"
+                         + "Score\n" + Math.floor(this.score) + "\n\n"
+                         + "Speed\n" +this.speed.toLocaleString("en-GB", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "x\n\n"
+                         + "Length\n" + this.player.trace.length;
+    }
+
+    getInterval() {
+        return 250 * (1 / (this.speed));
     }
 
     generateArena() {
@@ -123,10 +161,6 @@ class Game {
         }
 
         return arena;
-    }
-
-    increaseSpeed() {
-        this.interval *= 0.9;
     }
 
     loadTextures() {
@@ -181,7 +215,6 @@ class Game {
     }
 
     reset() {
-        this.interval = 250; // interval at which the snake moves
         this.arena = this.generateArena();
         this.arena[15][15] = 4;
         this.player = {
@@ -189,6 +222,9 @@ class Game {
             trace: [{x: 15, y: 15}],
             heading: "",
         }
+        this.time = 0;
+        this.score = 0;
+        this.speed = 1.0;
         this.spawnApple();
     }
 
@@ -210,7 +246,7 @@ class Game {
                 if (this.arena[y][x] == 2) {
                     this.arena[y][x] = 1;
                 }
-            }, this.interval * 20);
+            }, this.getInterval() * 20);
         }
     }
 
@@ -249,11 +285,12 @@ class Game {
         }
         if (this.arena[head.y][head.x] == 2) {
             // magic apple
-            this.increaseSpeed();
+            this.speed += 0.1;
         }
         if (this.arena[head.y][head.x] == 1 || this.arena[head.y][head.x] == 2) {
             // apple or magic apple
             this.player.length++;
+            this.score += this.speed * 10;
             this.arena[head.y][head.x] = 0;
             this.spawnApple();
         }
@@ -272,10 +309,11 @@ class Game {
 
     tick(elapsedTime) {
         this.accumulator += elapsedTime;
+        this.time += elapsedTime / 1000;
         
-            while (this.accumulator >= this.interval) {
+            while (this.accumulator >= this.getInterval()) {
                 game.step();
-                this.accumulator -= this.interval;
+                this.accumulator -= this.getInterval();
             }
         
             game.draw();

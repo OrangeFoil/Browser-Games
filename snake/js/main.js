@@ -1,10 +1,10 @@
-var app = new PIXI.Application(496, 496, {backgroundColor : 0x000000});
+var app = new PIXI.Application(616, 496, {backgroundColor : 0x000000});
 document.body.appendChild(app.view);
 
 var scale = Math.min(window.innerWidth / 496, window.innerHeight / 496);
 app.stage.scale.x = scale;
 app.stage.scale.y = scale;
-app.renderer.resize(496*scale, 496*scale);
+app.renderer.resize(616*scale, 496*scale);
 
 var game = new Game();
 game.draw(app);
