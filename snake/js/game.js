@@ -5,6 +5,7 @@ class Game {
         this.graphics = new PIXI.Graphics();
         this.arenaSize = 31;
         this.reset();
+        this.loadTextures();
     }
 
     draw() {
@@ -14,12 +15,14 @@ class Game {
             row.forEach((value, x) => {
                 if (value == 1) {
                     // apple
-                    this.graphics.beginFill(0xFF0000, 1);
-                    this.graphics.drawRoundedRect(x*16+1, y*16+1, 14, 14, 4);
+                    this.spriteApple.visible = true;
+                    this.spriteMagicApple.visible = false;
+                    this.spriteApple.position.set(x*16, y*16);
                 } else if (value == 2) {
                     // magic apple
-                    this.graphics.beginFill(0x0000FF, 1);
-                    this.graphics.drawRoundedRect(x*16+1, y*16+1, 14, 14, 4);
+                    this.spriteApple.visible = false;
+                    this.spriteMagicApple.visible = true;
+                    this.spriteMagicApple.position.set(x*16, y*16);
                 } else if (value == 3) {
                     // wall
                     this.graphics.beginFill(0xA0A0A0, 1);
@@ -57,6 +60,19 @@ class Game {
 
     increaseSpeed() {
         this.interval *= 0.9;
+    }
+
+    loadTextures() {
+        var spritesheet = PIXI.BaseTexture.fromImage("assets/tileset.png");
+
+        var spriteTextureApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(32, 48, 16, 16));
+        var spriteTextureMagicApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(48, 48, 16, 16));
+
+        this.spriteApple = new PIXI.Sprite(spriteTextureApple);
+        this.spriteMagicApple = new PIXI.Sprite(spriteTextureMagicApple);
+        
+        app.stage.addChild(this.spriteApple);
+        app.stage.addChild(this.spriteMagicApple);
     }
 
     parseInput() {
@@ -188,5 +204,6 @@ class Game {
             }
         
             game.draw();
+            app.renderer.render(app.stage);
     }
 }
