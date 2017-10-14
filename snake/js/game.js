@@ -27,15 +27,82 @@ class Game {
                     // wall
                     this.graphics.beginFill(0xA0A0A0, 1);
                     this.graphics.drawRect(x*16, y*16, 16, 16);
-                } else if (value == 4) {
-                    // player
-                    this.graphics.beginFill(0xFFFFFF, 1);
-                    this.graphics.drawRect(x*16, y*16, 16, 16);
                 }
             });
         });
 
         app.stage.addChild(this.graphics);
+
+        // clear snake
+        app.stage.removeChild(this.containerSnake);
+        this.containerSnake = new PIXI.Container();
+
+        const trace = this.player.trace;
+
+        // snake head
+        var spriteSnakeHead = new PIXI.Sprite(this.spriteTextureSnakeHead);
+        spriteSnakeHead.anchor.set(0.5);
+        spriteSnakeHead.position.set(trace[trace.length-1].x*16+8, trace[trace.length-1].y*16+8);
+        if (this.player.heading == "right") spriteSnakeHead.rotation = 0.5 * Math.PI;
+        if (this.player.heading == "down") spriteSnakeHead.rotation = 1.0 * Math.PI;
+        if (this.player.heading == "left") spriteSnakeHead.rotation = 1.5 * Math.PI;
+        this.containerSnake.addChild(spriteSnakeHead);
+
+        // snake body
+        for (let i = 1; i < trace.length-1; i++) {
+            if (trace[i-1].x == trace[i+1].x || trace[i-1].y == trace[i+1].y) {
+                var spriteSnakeBodyStraight = new PIXI.Sprite(this.spriteTextureSnakeBodyStraight);
+                spriteSnakeBodyStraight.anchor.set(0.5);
+                spriteSnakeBodyStraight.position.set(trace[i].x*16+8, trace[i].y*16+8);
+                if (trace[i-1].x - trace[i+1].x == -2) spriteSnakeBodyStraight.rotation = 0.5 * Math.PI;
+                else if (trace[i-1].y - trace[i+1].y == -2) spriteSnakeBodyStraight.rotation = 1.0 * Math.PI;
+                else if (trace[i-1].x - trace[i+1].x == 2) spriteSnakeBodyStraight.rotation = 1.5 * Math.PI;
+                this.containerSnake.addChild(spriteSnakeBodyStraight);
+            } else {
+                if (trace[i-1].y == trace[i].y+1 && trace[i].x-1 == trace[i+1].x) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyLeft);
+                } else if (trace[i-1].x == trace[i].x-1 && trace[i].y-1 == trace[i+1].y) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyLeft);
+                    spriteSnakeBody.rotation = 0.5 * Math.PI;
+                } else if (trace[i-1].y == trace[i].y-1 && trace[i].x+1 == trace[i+1].x) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyLeft);
+                    spriteSnakeBody.rotation = 1.0 * Math.PI;
+                } else if (trace[i-1].x == trace[i].x+1 && trace[i].y+1 == trace[i+1].y) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyLeft);
+                    spriteSnakeBody.rotation = 1.5 * Math.PI;
+                } else if (trace[i-1].y == trace[i].y+1 && trace[i].x+1 == trace[i+1].x) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyRight);
+                } else if (trace[i-1].x == trace[i].x-1 && trace[i].y+1 == trace[i+1].y) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyRight);
+                    spriteSnakeBody.rotation = 0.5 * Math.PI;
+                } else if (trace[i-1].y == trace[i].y-1 && trace[i].x-1 == trace[i+1].x) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyRight);
+                    spriteSnakeBody.rotation = 1.0 * Math.PI;
+                } else if (trace[i-1].x == trace[i].x+1 && trace[i].y-1 == trace[i+1].y) {
+                    var spriteSnakeBody = new PIXI.Sprite(this.spriteTextureSnakeBodyRight);
+                    spriteSnakeBody.rotation = 1.5 * Math.PI;
+                }
+                spriteSnakeBody.anchor.set(0.5);
+                spriteSnakeBody.position.set(trace[i].x*16+8, trace[i].y*16+8);
+                this.containerSnake.addChild(spriteSnakeBody);    
+            }
+
+            
+        }
+
+        // snake tail
+        if (trace.length > 1) {
+            var spriteSnakeTail = new PIXI.Sprite(this.spriteTextureSnakeTail);
+            spriteSnakeTail.anchor.set(0.5);
+            spriteSnakeTail.position.set(trace[0].x*16+8, trace[0].y*16+8);
+            if (trace[0].x - trace[1].x == -1) spriteSnakeTail.rotation = 0.5 * Math.PI;
+            else if (trace[0].y - trace[1].y == -1) spriteSnakeTail.rotation = 1.0 * Math.PI;
+            else if (trace[0].x - trace[1].x == 1) spriteSnakeTail.rotation = 1.5 * Math.PI;
+            this.containerSnake.addChild(spriteSnakeTail);
+        }
+        
+
+        app.stage.addChild(this.containerSnake);
     }
 
     generateArena() {
@@ -65,14 +132,22 @@ class Game {
     loadTextures() {
         var spritesheet = PIXI.BaseTexture.fromImage("assets/tileset.png");
 
-        var spriteTextureApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(32, 48, 16, 16));
-        var spriteTextureMagicApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(48, 48, 16, 16));
+        var spriteTextureApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(32, 16, 16, 16));
+        var spriteTextureMagicApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(48, 16, 16, 16));
+        this.spriteTextureSnakeHead = new PIXI.Texture(spritesheet, new PIXI.Rectangle(0, 0, 16, 16));
+        this.spriteTextureSnakeBodyStraight = new PIXI.Texture(spritesheet, new PIXI.Rectangle(16, 0, 16, 16));
+        this.spriteTextureSnakeBodyLeft = new PIXI.Texture(spritesheet, new PIXI.Rectangle(32, 0, 16, 16));
+        this.spriteTextureSnakeBodyRight = new PIXI.Texture(spritesheet, new PIXI.Rectangle(48, 0, 16, 16));
+        this.spriteTextureSnakeTail = new PIXI.Texture(spritesheet, new PIXI.Rectangle(0, 16, 16, 16));
 
         this.spriteApple = new PIXI.Sprite(spriteTextureApple);
         this.spriteMagicApple = new PIXI.Sprite(spriteTextureMagicApple);
         
+        this.containerSnake = new PIXI.Container();
+        
         app.stage.addChild(this.spriteApple);
         app.stage.addChild(this.spriteMagicApple);
+        app.stage.addChild(this.containerSnake);
     }
 
     parseInput() {
