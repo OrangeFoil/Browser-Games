@@ -89,6 +89,10 @@ class Snake {
         app.stage.addChild(this.containerSnake);
     }
 
+    isMoving() {
+        return this.heading != "";
+    }
+
     loadTextures() {
         var spritesheet = PIXI.BaseTexture.fromImage("assets/tileset.png");
 

@@ -130,7 +130,7 @@ class Game {
 
         // determine next position of the snake head
         this.snake.heading = this.parseInput();
-        if (this.snake.heading == "") {
+        if (!this.snake.isMoving()) {
             return;
         } else if (this.snake.heading == "up") {
             head.y--;
@@ -180,7 +180,10 @@ class Game {
 
     tick(elapsedTime) {
         this.accumulator += elapsedTime;
-        this.time += elapsedTime / 1000;
+
+        if (this.snake.isMoving()) {
+            this.time += elapsedTime / 1000;
+        }
         
             while (this.accumulator >= this.getInterval()) {
                 game.step();
