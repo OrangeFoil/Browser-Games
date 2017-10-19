@@ -4,7 +4,6 @@ class Game {
         this.inputs = [];
         this.graphics = new PIXI.Graphics();
         this.arenaSize = 31;
-        this.reset();
         this.loadTextures();
 
          // textbox

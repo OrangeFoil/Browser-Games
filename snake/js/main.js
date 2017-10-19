@@ -7,6 +7,7 @@ app.stage.scale.y = scale;
 app.renderer.resize(616*scale, 496*scale);
 
 var game = new Game();
+game.reset();
 game.draw(app);
 
 app.ticker.add(function(delta) {
