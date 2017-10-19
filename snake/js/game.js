@@ -152,6 +152,7 @@ class Game {
         if (this.arena[head.y][head.x] >= 3) {
             // wall or self
             this.snake.clear();
+            this.apple.kill();
             this.reset();
             return;
         }
