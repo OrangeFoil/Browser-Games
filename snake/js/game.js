@@ -4,7 +4,6 @@ class Game {
         this.inputs = [];
         this.graphics = new PIXI.Graphics();
         this.arenaSize = 31;
-        this.loadTextures();
 
          // textbox
          const textBackground = new PIXI.Graphics();
@@ -41,17 +40,7 @@ class Game {
 
         this.arena.forEach((row, y) => {
             row.forEach((value, x) => {
-                if (value == 1) {
-                    // apple
-                    this.spriteApple.visible = true;
-                    this.spriteMagicApple.visible = false;
-                    this.spriteApple.position.set(x*16, y*16);
-                } else if (value == 2) {
-                    // magic apple
-                    this.spriteApple.visible = false;
-                    this.spriteMagicApple.visible = true;
-                    this.spriteMagicApple.position.set(x*16, y*16);
-                } else if (value == 3) {
+                if (value == 3) {
                     // wall
                     this.graphics.beginFill(0xA0A0A0, 1);
                     this.graphics.drawRect(x*16, y*16, 16, 16);
@@ -61,6 +50,7 @@ class Game {
 
         app.stage.addChild(this.graphics);
 
+        this.apple.draw();
         this.snake.draw();
 
         // text
@@ -92,19 +82,6 @@ class Game {
         }
 
         return arena;
-    }
-
-    loadTextures() {
-        var spritesheet = PIXI.BaseTexture.fromImage("assets/tileset.png");
-
-        var spriteTextureApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(32, 16, 16, 16));
-        var spriteTextureMagicApple = new PIXI.Texture(spritesheet, new PIXI.Rectangle(48, 16, 16, 16));
-
-        this.spriteApple = new PIXI.Sprite(spriteTextureApple);
-        this.spriteMagicApple = new PIXI.Sprite(spriteTextureMagicApple);
-        
-        app.stage.addChild(this.spriteApple);
-        app.stage.addChild(this.spriteMagicApple);
     }
 
     parseInput() {
@@ -140,33 +117,11 @@ class Game {
     reset() {
         this.arena = this.generateArena();
         this.arena[15][15] = 4;
+        this.apple = new Apple();
         this.snake = new Snake();
         this.time = 0;
         this.score = 0;
         this.speed = 1.0;
-        this.spawnApple();
-    }
-
-    spawnApple() {
-        var x, y;
-        do {
-            x = Math.floor(Math.random() * this.arenaSize);
-            y = Math.floor(Math.random() * this.arenaSize);
-        } while (this.arena[y][x] != 0);
-
-        if (Math.random() > 0.5) {
-            // regular apple
-            this.arena[y][x] = 1;
-        } else {
-            // magic apple
-            this.arena[y][x] = 2;
-
-            setTimeout(() => {
-                if (this.arena[y][x] == 2) {
-                    this.arena[y][x] = 1;
-                }
-            }, this.getInterval() * 20);
-        }
     }
 
     step() {
@@ -200,16 +155,15 @@ class Game {
             this.reset();
             return;
         }
-        if (this.arena[head.y][head.x] == 2) {
-            // magic apple
-            this.speed += 0.1;
-        }
-        if (this.arena[head.y][head.x] == 1 || this.arena[head.y][head.x] == 2) {
-            // apple or magic apple
+        if (this.apple.x == head.x && this.apple.y == head.y) {
+            if (this.apple.magic) {
+                this.speed += 0.1;
+            }
+
             this.snake.length++;
             this.score += this.speed * 10;
-            this.arena[head.y][head.x] = 0;
-            this.spawnApple();
+            this.apple.kill();
+            this.apple = new Apple();
         }
     
         // add new snake head to array
