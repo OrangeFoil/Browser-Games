@@ -40,13 +40,10 @@ class Rectangle {
     }
 
     collisionDetection(object) {
-        if (this.left < object.right &&
-            this.right > object.left &&
-            this.top < object.bottom &&
-            this.bottom > object.top) {
-            return true;
-        }
-        return false;
+        return this.left < object.right &&
+               this.right > object.left &&
+               this.top < object.bottom &&
+               this.bottom > object.top
     }
 
     // returns whether object was hit from top/bottom or left/right
@@ -56,10 +53,8 @@ class Rectangle {
 
         if (intersectionVertical <= intersectionHorizontal) {
             return "top/bottom";
-        } else {
-            return "left/right";
         }
-        return "";
+        return "left/right";
     }
 
     // unclips vertically intersecting rectangles
